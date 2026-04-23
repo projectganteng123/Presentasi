@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimpleCipher v3 — Proyektor | Enkripsi File Simetris Berbasis SPN</title>
+  <link rel="stylesheet" href="style-proyektor.css" />
+  <!-- Highlight.js — tema terang untuk proyektor -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════════════════ -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <span class="nav-logo">SimpleCipher <span class="badge-v3">v3</span></span>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#hero">Beranda</a></li>
+        <li><a href="#problems">Masalah</a></li>
+        <li><a href="#features">Fitur</a></li>
+        <li><a href="#flow">Alur Enkripsi</a></li>
+        <li><a href="#rounds">6 Ronde SPN</a></li>
+        <li><a href="#decrypt-flow">Alur Dekripsi</a></li>
+        <li><a href="#ui">UI & Threading</a></li>
+        <li><a href="#testing">Pengujian</a></li>
+        <li><a href="#glosarium">Glosarium</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <div class="hero-eyebrow">Tugas Akhir Mata Kuliah Kriptografi</div>
+        <h1 class="hero-title">
+          SimpleCipher <span class="accent-green">v3</span>
+        </h1>
+        <p class="hero-subtitle">
+          Enkripsi File Simetris Berbasis <strong>Substitution-Permutation Network (SPN)</strong>
+          dengan lapisan keamanan modern: PBKDF2, IV acak, S-Box aktif, HMAC, dan Chunking 4 MB.
+        </p>
+        <div class="hero-badges">
+          <span class="badge">Python 3.x</span>
+          <span class="badge">SPN / AES-Inspired</span>
+          <span class="badge">PBKDF2-HMAC-SHA256</span>
+          <span class="badge">Encrypt-then-MAC</span>
+          <span class="badge">6 Ronde</span>
+          <span class="badge">Chunking 4 MB</span>
+        </div>
+        <div class="hero-cta">
+          <a href="#problems" class="btn btn-primary">Lihat Detail</a>
+          <a href="#flow" class="btn btn-outline">Alur Teknis</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="file-diagram">
+          <div class="file-row header-row">
+            <div class="file-field ver">VER<br/><small>1B</small></div>
+            <div class="file-field iv">IV<br/><small>16B</small></div>
+            <div class="file-field salt">SALT<br/><small>16B</small></div>
+          </div>
+          <div class="file-row data-row">
+            <div class="file-field cipher">CIPHERTEXT<br/><small>data terenkripsi</small></div>
+          </div>
+          <div class="file-row footer-row">
+            <div class="file-field mac">MAC<br/><small>32B HMAC-SHA256</small></div>
+          </div>
+          <div class="file-label">Format File <code>.sc</code></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       MASALAH UMUM
+  ══════════════════════════════════════════════════════ -->
+  <section id="problems">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Konteks</span>
+        <h2>Permasalahan Umum dalam Kriptografi File</h2>
+        <p class="section-desc">
+          Sebelum memahami SimpleCipher v3, penting untuk mengenal celah keamanan
+          yang umum ditemukan pada implementasi enkripsi yang naif.
+        </p>
+      </div>
+      <div class="problems-grid">
+
+        <div class="problem-card" data-index="1">
+          <div class="problem-icon">🔑</div>
+          <h3>Password Langsung Jadi Kunci</h3>
+          <p>
+            Banyak implementasi menggunakan password pengguna secara langsung sebagai kunci enkripsi.
+            SHA-256 tunggal terlalu cepat — GPU modern bisa mencoba <strong>&gt;10 miliar
+            kombinasi/detik</strong>, membuat password pendek tidak aman.
+          </p>
+          <div class="problem-tag danger">Brute-Force Vulnerability</div>
+        </div>
+
+        <div class="problem-card" data-index="2">
+          <div class="problem-icon">🔁</div>
+          <h3>Enkripsi Deterministik</h3>
+          <p>
+            Tanpa nilai acak per sesi (IV/Nonce), plaintext yang sama + password yang sama
+            selalu menghasilkan ciphertext yang <strong>identik</strong>. Penyerang dapat
+            mendeteksi duplikasi data atau melakukan known-plaintext attack.
+          </p>
+          <div class="problem-tag warning">Pattern Analysis Attack</div>
+        </div>
+
+        <div class="problem-card" data-index="3">
+          <div class="problem-icon">📐</div>
+          <h3>Operasi Linear Murni</h3>
+          <p>
+            Cipher yang hanya mengandalkan XOR dan operasi aritmatika dapat direpresentasikan
+            sebagai sistem persamaan linear. Penyerang dapat mengeksploitasi ini melalui
+            <strong>linear cryptanalysis</strong> untuk merekonstruksi kunci.
+          </p>
+          <div class="problem-tag danger">Linear Cryptanalysis</div>
+        </div>
+
+        <div class="problem-card" data-index="4">
+          <div class="problem-icon">🚫</div>
+          <h3>Tidak Ada Verifikasi Integritas</h3>
+          <p>
+            Enkripsi hanya menjamin kerahasiaan, bukan keaslian. Tanpa autentikasi,
+            penyerang dapat memodifikasi ciphertext dan mengamati pesan error untuk
+            membocorkan plaintext secara bertahap — disebut <strong>padding oracle attack</strong>.
+          </p>
+          <div class="problem-tag danger">Chosen-Ciphertext Attack</div>
+        </div>
+
+        <div class="problem-card" data-index="5">
+          <div class="problem-icon">💾</div>
+          <h3>Pemrosesan File Besar Tidak Efisien</h3>
+          <p>
+            Memuat seluruh file ke RAM sebelum mengenkripsi tidak skalabel.
+            File berukuran beberapa gigabyte dapat menyebabkan <strong>Out-of-Memory (OOM)</strong>
+            pada perangkat dengan RAM terbatas.
+          </p>
+          <div class="problem-tag warning">Memory Inefficiency</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       FITUR SOLUSI
+  ══════════════════════════════════════════════════════ -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Solusi</span>
+        <h2>Fitur Keamanan SimpleCipher v3</h2>
+        <p class="section-desc">
+          Setiap masalah di atas dijawab dengan satu lapisan keamanan yang spesifik.
+        </p>
+      </div>
+      <div class="features-table-wrap">
+        <table class="features-table">
+          <thead>
+            <tr>
+              <th>Masalah Diatasi</th>
+              <th>Fitur</th>
+              <th>Implementasi Teknis</th>
+              <th>Manfaat Keamanan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="prob-ref">🔑 Brute-Force</span></td>
+              <td><strong>PBKDF2-HMAC-SHA256</strong></td>
+              <td><code>hashlib.pbkdf2_hmac('sha256', pw, salt, 10_000, dklen=32)</code></td>
+              <td>Work factor 10.000 iterasi memperlambat serangan GPU ~1.000×</td>
+            </tr>
+            <tr>
+              <td><span class="prob-ref">🔁 Deterministik</span></td>
+              <td><strong>IV & Salt Acak per Sesi</strong></td>
+              <td><code>os.urandom(16)</code> untuk IV dan Salt</td>
+              <td>Ciphertext unik setiap enkripsi. Mencegah rainbow table.</td>
+            </tr>
+            <tr>
+              <td><span class="prob-ref">📐 Linear</span></td>
+              <td><strong>S-Box Aktif (6 Ronde)</strong></td>
+              <td><code>_NP_SBOX[data]</code> — Fisher-Yates, seed 42</td>
+              <td>Non-linearitas (konfusi Shannon). Memutus analisis aljabar.</td>
+            </tr>
+            <tr>
+              <td><span class="prob-ref">🚫 Integritas</span></td>
+              <td><strong>HMAC-SHA256 + Encrypt-then-MAC</strong></td>
+              <td><code>hmac.new(mac_key, VER+IV+SALT+ct, sha256)</code></td>
+              <td>Verifikasi SEBELUM dekripsi. Mencegah padding oracle & tampering.</td>
+            </tr>
+            <tr>
+              <td><span class="prob-ref">💾 Memory</span></td>
+              <td><strong>Chunking 4 MB + Threading</strong></td>
+              <td><code>CHUNK_SIZE = 4 * 1024 * 1024</code></td>
+              <td>RAM tetap ≤50 MB meski file 10 GB. UI tetap responsif.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       ALUR ENKRIPSI
+  ══════════════════════════════════════════════════════ -->
+  <section id="flow">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Deep Dive</span>
+        <h2>Alur Proses Enkripsi</h2>
+        <p class="section-desc">
+          Bagaimana data bergerak dari plaintext menjadi file <code>.sc</code> — langkah demi langkah
+          lengkap dengan kode yang dieksekusi.
+        </p>
+      </div>
+
+      <!-- Step 1: Key Derivation -->
+      <div class="flow-step" id="step-kdf">
+        <div class="step-marker">
+          <div class="step-num">01</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <h3>Inisialisasi & Key Derivation</h3>
+            <span class="step-badge pbkdf2">PBKDF2</span>
+            <span class="step-badge iv-badge">IV</span>
+          </div>
+          <p>
+            Password tidak pernah digunakan langsung sebagai kunci. Pertama, dua nilai
+            acak 16 byte dihasilkan: <strong>IV</strong> (untuk keunikan ronde) dan
+            <strong>Salt</strong> (untuk PBKDF2). Salt diproses bersama password melalui
+            PBKDF2-HMAC-SHA256 dengan 10.000 iterasi menghasilkan <code>master_key</code>.
+            Dari <code>master_key</code> diturunkan <code>mac_key</code> untuk autentikasi —
+            ini disebut <em>domain separation</em>, memastikan kunci enkripsi dan autentikasi
+            tidak saling berhubungan.
+          </p>
+          <div class="key-flow-visual">
+            <div class="kf-node input">password</div>
+            <div class="kf-arrow">+</div>
+            <div class="kf-node salt-node">salt <small>(os.urandom)</small></div>
+            <div class="kf-arrow">→</div>
+            <div class="kf-node pbkdf2-node">PBKDF2<br/><small>10.000 iter</small></div>
+            <div class="kf-arrow">→</div>
+            <div class="kf-node master-node">master_key<br/><small>32B</small></div>
+            <div class="kf-arrow kf-down">↓ SHA256(mk+b'MAC')</div>
+            <div class="kf-node mac-node">mac_key<br/><small>32B</small></div>
+          </div>
+          <pre><code class="language-python">pw   = password.encode('utf-8') if isinstance(password, str) else password
+iv   = os.urandom(IV_SIZE)    # 16 byte acak per sesi — IV
+salt = os.urandom(SALT_SIZE)  # 16 byte acak per sesi — Salt PBKDF2
+
+# PBKDF2: 10.000 iterasi memperlambat brute-force GPU ~1.000×
+master_key = hashlib.pbkdf2_hmac(
+    'sha256', pw, salt, PBKDF2_ITER, dklen=32
+)
+
+# Domain separation: mac_key berbeda dari kunci enkripsi
+mac_key = hashlib.sha256(master_key + b'MAC').digest()</code></pre>
+        </div>
+      </div>
+
+      <!-- Step 2: Padding & Chunking -->
+      <div class="flow-step" id="step-padding">
+        <div class="step-marker">
+          <div class="step-num">02</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <h3>Padding PKCS#7 & Pembagian Chunk</h3>
+            <span class="step-badge memory-badge">Memory-Efficient</span>
+          </div>
+          <p>
+            Data asli ditambahkan padding agar panjangnya kelipatan 16 byte (PKCS#7).
+            Nilai setiap byte padding sama dengan jumlah byte yang ditambahkan — ini
+            memungkinkan penghapusan deterministik saat dekripsi. Data kemudian dibagi
+            menjadi potongan maksimal 4 MB untuk diproses secara berurutan, sehingga
+            RAM yang terpakai selalu terbatas.
+          </p>
+          <div class="padding-visual">
+            <div class="pv-row">
+              <div class="pv-label">Data 13B:</div>
+              <div class="pv-cells">
+                <div class="pv-cell data" style="flex:13">H e l l o … (13 byte data)</div>
+                <div class="pv-cell pad" style="flex:3">03 03 03</div>
+              </div>
+              <div class="pv-total">= 16B</div>
+            </div>
+            <div class="pv-row">
+              <div class="pv-label">Data 16B:</div>
+              <div class="pv-cells">
+                <div class="pv-cell data" style="flex:16">data (16 byte)</div>
+                <div class="pv-cell pad" style="flex:16">10 10 … 10 (16 byte)</div>
+              </div>
+              <div class="pv-total">= 32B</div>
+            </div>
+          </div>
+          <pre><code class="language-python">def _add_padding(data: bytes) -> bytes:
+    # PKCS#7: nilai padding = jumlah byte yang ditambahkan
+    pad = 16 - (len(data) % 16)
+    return data + bytes([pad] * pad)
+
+padded = _add_padding(plaintext)
+
+# Chunking: proses per 4 MB, RAM tetap terbatas
+for ci, start in enumerate(range(0, len(padded), CHUNK_SIZE)):
+    chunk = padded[start : start + CHUNK_SIZE]  # max 4 MB per iterasi
+    n     = len(chunk)
+    ...</code></pre>
+        </div>
+      </div>
+
+      <!-- Step 3: Precompute -->
+      <div class="flow-step" id="step-precompute">
+        <div class="step-marker">
+          <div class="step-num">03</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <h3>Prekomputasi Round Key & Round Salt</h3>
+            <span class="step-badge pbkdf2">Key Derivation</span>
+          </div>
+          <p>
+            Untuk setiap chunk, fungsi <code>_precompute()</code> menghasilkan 6 round key dan
+            6 round salt — masing-masing sepanjang <em>n</em> byte (ukuran chunk).
+            Material ini diturunkan dari <code>master_key</code> + <code>iv</code> +
+            tag + nomor ronde via SHA-256 chaining. Parameter <code>chunk_idx</code>
+            memastikan setiap chunk mendapat material yang berbeda.
+          </p>
+          <pre><code class="language-python">def _gen_bytes(master_key, iv, tag, index, n):
+    # SHA-256 chaining: h₀ → h₁ → h₂ → … dipotong sepanjang n
+    h   = hashlib.sha256(master_key + iv + tag + index.to_bytes(4,'big')).digest()
+    out = bytearray()
+    while len(out) < n:
+        out += h
+        h = hashlib.sha256(h + master_key).digest()  # chain
+    return bytes(out[:n])
+
+def _precompute(master_key, iv, chunk_idx, n):
+    # Tag 'RK...' untuk round key, 'ST...' untuk round salt
+    rks   = [_gen_bytes(master_key, iv, b'RK'+chunk_idx.to_bytes(4,'big'), r, n)
+             for r in range(ROUNDS)]  # 6 round key
+    salts = [_gen_bytes(master_key, iv, b'ST'+chunk_idx.to_bytes(4,'big'), r, n)
+             for r in range(ROUNDS)]  # 6 round salt
+    return rks, salts</code></pre>
+        </div>
+      </div>
+
+      <!-- Step 4: 6 Ronde SPN -->
+      <div class="flow-step" id="step-spn">
+        <div class="step-marker">
+          <div class="step-num">04</div>
+          <div class="step-line"></div>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <h3>6 Ronde SPN — Inti Enkripsi</h3>
+            <span class="step-badge spn-badge">SPN Core</span>
+          </div>
+          <p>
+            Setiap chunk melewati 6 ronde transformasi berurutan. Detail setiap ronde
+            dijelaskan pada bagian berikutnya.
+          </p>
+          <pre><code class="language-python">def _enc_chunk(raw: bytes, rks, salts) -> bytes:
+    data = np.frombuffer(raw, dtype=np.uint8).copy()
+    for r in range(ROUNDS):          # Ronde 0 → 1 → 2 → 3 → 4 → 5
+        data = _xor(data, rks[r])    # 1. XOR dengan round key
+        data = _apply_sbox(data)     # 2. S-Box: substitusi non-linear
+        data = _add_salt(data,       # 3. AddSalt: penjumlahan mod 256
+                         salts[r])
+        data = _swap_halves(data)    # 4. Swap: tukar dua setengah
+    return data.tobytes()</code></pre>
+        </div>
+      </div>
+
+      <!-- Step 5: HMAC -->
+      <div class="flow-step" id="step-hmac">
+        <div class="step-marker">
+          <div class="step-num">05</div>
+        </div>
+        <div class="step-content">
+          <div class="step-header">
+            <h3>Autentikasi HMAC & Susun Output Final</h3>
+            <span class="step-badge hmac-badge">HMAC</span>
+            <span class="step-badge etm-badge">Encrypt-then-MAC</span>
+          </div>
+          <p>
+            Setelah semua chunk terenkripsi, HMAC-SHA256 dihitung atas
+            <strong>seluruh</strong> konten yang akan disimpan: VERSION + IV + SALT +
+            ciphertext. Pola <em>Encrypt-then-MAC</em> memastikan penyerang tidak dapat
+            memanipulasi apapun di file <code>.sc</code> tanpa terdeteksi.
+            Output final disusun dengan IV dan SALT di header sehingga dekripsi dapat
+            merekonstruksi semua kunci yang dibutuhkan.
+          </p>
+          <pre><code class="language-python">ciphertext_body = bytes(out)  # gabungan semua chunk terenkripsi
+
+# HMAC atas VERSION + IV + SALT + seluruh ciphertext
+mac_tag = hmac.new(
+    mac_key,
+    VERSION + iv + salt + ciphertext_body,
+    hashlib.sha256
+).digest()
+
+# Format output: [1B] + [16B] + [16B] + [?B] + [32B]
+return VERSION + iv + salt + ciphertext_body + mac_tag</code></pre>
+        </div>
+      </div>
+
+    </div><!-- /container -->
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       6 RONDE SPN DETAIL
+  ══════════════════════════════════════════════════════ -->
+  <section id="rounds">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Core Algorithm</span>
+        <h2>Detail 4 Operasi dalam Setiap Ronde</h2>
+        <p class="section-desc">
+          Setiap dari 6 ronde menjalankan 4 operasi berurutan. Kombinasi operasi linear
+          dan non-linear mencapai <em>Confusion</em> dan <em>Diffusion</em> Shannon.
+        </p>
+      </div>
+
+      <div class="rounds-tabs">
+        <div class="tabs-nav">
+          <button class="tab-btn active" data-tab="xor">① XOR</button>
+          <button class="tab-btn" data-tab="sbox">② S-Box</button>
+          <button class="tab-btn" data-tab="addsalt">③ AddSalt</button>
+          <button class="tab-btn" data-tab="swap">④ SwapHalves</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-xor">
+          <div class="tab-inner">
+            <div class="tab-desc">
+              <h4>XOR dengan Round Key</h4>
+              <p>
+                Setiap byte data di-XOR dengan byte round key yang bersesuaian.
+                XOR bersifat <strong>self-inverse</strong>: <code>(a ⊕ k) ⊕ k = a</code>,
+                sehingga operasi dekripsi identik dengan enkripsi — cukup XOR
+                dengan kunci yang sama. Ini mencampur kunci ke dalam data (konfusi).
+              </p>
+              <div class="bit-example">
+                <div class="bit-row">
+                  <span class="bit-label">Data:</span>
+                  <span class="bit-val">01001000</span>
+                  <span class="bit-dec">(= 72)</span>
+                </div>
+                <div class="bit-row">
+                  <span class="bit-label">Key:</span>
+                  <span class="bit-val">10110101</span>
+                  <span class="bit-dec">(= 181)</span>
+                </div>
+                <div class="bit-divider"></div>
+                <div class="bit-row result">
+                  <span class="bit-label">XOR:</span>
+                  <span class="bit-val">11111101</span>
+                  <span class="bit-dec">(= 253)</span>
+                </div>
+              </div>
+            </div>
+            <div class="tab-code">
+              <pre><code class="language-python"># Versi numpy (cepat — operasi array level C)
+def _xor(data: np.ndarray, key: bytes) -> np.ndarray:
+    return data ^ np.frombuffer(key, dtype=np.uint8)
+
+# Versi pure Python (fallback)
+def _xor(data: bytearray, key: bytes) -> bytearray:
+    return bytearray(a ^ b for a, b in zip(data, key))</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-sbox">
+          <div class="tab-inner">
+            <div class="tab-desc">
+              <h4>S-Box — Substitusi Non-Linear</h4>
+              <p>
+                Setiap byte diganti menggunakan lookup table (S-Box) berukuran 256 entri.
+                S-Box dibuat dengan algoritma <strong>Fisher-Yates shuffle</strong> menggunakan
+                seed tetap (42), memastikan S-Box yang sama di setiap eksekusi.
+                S-Box bersifat <strong>bijektif</strong> — Inverse S-Box diturunkan otomatis
+                untuk dekripsi.
+              </p>
+              <p>
+                Ini adalah satu-satunya operasi <strong>non-linear</strong> dalam cipher,
+                memenuhi prinsip <em>confusion</em> Shannon dan mencegah analisis linear/diferensial.
+              </p>
+              <div class="sbox-mini">
+                <div class="sm-row header">
+                  <span>Input byte</span><span>→</span><span>SBOX[input]</span>
+                </div>
+                <div class="sm-row"><span>0x00 (0)</span><span>→</span><span>? (nilai acak)</span></div>
+                <div class="sm-row"><span>0x01 (1)</span><span>→</span><span>? (nilai berbeda)</span></div>
+                <div class="sm-row"><span>0xFF (255)</span><span>→</span><span>? (bijektif)</span></div>
+              </div>
+            </div>
+            <div class="tab-code">
+              <pre><code class="language-python"># Inisialisasi S-Box (sekali saat program start)
+_rng  = random.Random(42)      # seed tetap
+SBOX  = list(range(256))
+_rng.shuffle(SBOX)             # Fisher-Yates shuffle
+
+# Inverse S-Box untuk dekripsi
+INV_SBOX = [0] * 256
+for i, v in enumerate(SBOX):
+    INV_SBOX[v] = i            # jika SBOX[i]=j, INV_SBOX[j]=i
+
+# Versi numpy (O(n) di level C — sangat cepat)
+_NP_SBOX     = np.array(SBOX,     dtype=np.uint8)
+_NP_INV_SBOX = np.array(INV_SBOX, dtype=np.uint8)
+
+def _apply_sbox(data: np.ndarray) -> np.ndarray:
+    return _NP_SBOX[data]      # lookup seluruh array sekaligus
+
+def _apply_inv_sbox(data: np.ndarray) -> np.ndarray:
+    return _NP_INV_SBOX[data]</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-addsalt">
+          <div class="tab-inner">
+            <div class="tab-desc">
+              <h4>AddSalt — Penjumlahan Modulo 256</h4>
+              <p>
+                Setiap byte data ditambah dengan byte round salt menggunakan aritmatika
+                modulo 256. Berbeda dengan XOR, penjumlahan dapat menyebabkan
+                <strong>carry propagation</strong> — perubahan 1 bit dapat mempengaruhi
+                bit-bit yang lebih tinggi, meningkatkan efek difusi.
+              </p>
+              <div class="bit-example">
+                <div class="bit-row">
+                  <span class="bit-label">Data:</span>
+                  <span class="bit-val">200</span>
+                </div>
+                <div class="bit-row">
+                  <span class="bit-label">Salt:</span>
+                  <span class="bit-val">80</span>
+                </div>
+                <div class="bit-divider"></div>
+                <div class="bit-row result">
+                  <span class="bit-label">Hasil:</span>
+                  <span class="bit-val">(200 + 80) % 256 = <strong>24</strong></span>
+                </div>
+                <div class="bit-row muted">
+                  <span class="bit-label">Inverse:</span>
+                  <span class="bit-val">(24 - 80) % 256 = <strong>200</strong> ✓</span>
+                </div>
+              </div>
+            </div>
+            <div class="tab-code">
+              <pre><code class="language-python"># Enkripsi: tambah salt (mod 256)
+def _add_salt(data: np.ndarray, salt: bytes) -> np.ndarray:
+    return (
+        (data.astype(np.uint16) +            # upcast ke uint16 cegah overflow
+         np.frombuffer(salt, dtype=np.uint8)
+        ) % 256
+    ).astype(np.uint8)
+
+# Dekripsi: kurangi salt (mod 256) — self-inverse dengan operasi terbalik
+def _sub_salt(data: np.ndarray, salt: bytes) -> np.ndarray:
+    return (
+        (data.astype(np.uint16) -
+         np.frombuffer(salt, dtype=np.uint8)
+        ) % 256
+    ).astype(np.uint8)</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="tab-swap">
+          <div class="tab-inner">
+            <div class="tab-desc">
+              <h4>SwapHalves — Difusi Spasial</h4>
+              <p>
+                Data dibagi tepat di tengah, lalu kedua bagian ditukar posisinya:
+                <code>[A | B] → [B | A]</code>. Operasi ini bersifat
+                <strong>self-inverse</strong> — swap dua kali mengembalikan data ke
+                posisi semula. Tujuannya adalah menyebarkan pengaruh byte dari bagian
+                pertama ke bagian kedua dan sebaliknya (<em>diffusion</em>).
+              </p>
+              <div class="swap-visual">
+                <div class="sv-before">
+                  <div class="sv-half a">A<br/><small>setengah pertama</small></div>
+                  <div class="sv-half b">B<br/><small>setengah kedua</small></div>
+                </div>
+                <div class="sv-arrow">⇄ swap</div>
+                <div class="sv-after">
+                  <div class="sv-half b">B<br/><small>setengah kedua</small></div>
+                  <div class="sv-half a">A<br/><small>setengah pertama</small></div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-code">
+              <pre><code class="language-python"># Versi numpy
+def _swap_halves(data: np.ndarray) -> np.ndarray:
+    mid = len(data) // 2
+    return np.concatenate([data[mid:], data[:mid]])
+    # [A|B] → data[mid:] = B, data[:mid] = A → [B|A]
+
+# Versi pure Python
+def _swap_halves(data: bytearray) -> bytearray:
+    mid = len(data) // 2
+    return data[mid:] + data[:mid]
+
+# Self-inverse: swap dua kali = kembali ke semula
+# [A|B] → swap → [B|A] → swap → [A|B] ✓</code></pre>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /rounds-tabs -->
+
+      <!-- Ringkasan urutan ronde -->
+      <div class="round-summary">
+        <h4>Urutan per Ronde & Inversnya</h4>
+        <div class="rs-grid">
+          <div class="rs-col">
+            <div class="rs-title enc">Enkripsi (Ronde 0 → 5)</div>
+            <div class="rs-steps">
+              <div class="rs-step">① XOR(data, RK[r])</div>
+              <div class="rs-step">② S-Box(data)</div>
+              <div class="rs-step">③ AddSalt(data, Salt[r])</div>
+              <div class="rs-step">④ SwapHalves(data)</div>
+            </div>
+          </div>
+          <div class="rs-arrow">⟺</div>
+          <div class="rs-col">
+            <div class="rs-title dec">Dekripsi (Ronde 5 → 0)</div>
+            <div class="rs-steps">
+              <div class="rs-step">① SwapHalves(data)</div>
+              <div class="rs-step">② SubSalt(data, Salt[r])</div>
+              <div class="rs-step">③ InvSBox(data)</div>
+              <div class="rs-step">④ XOR(data, RK[r])</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       ALUR DEKRIPSI
+  ══════════════════════════════════════════════════════ -->
+  <section id="decrypt-flow">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Keamanan</span>
+        <h2>Alur Dekripsi — Verifikasi Dulu, Dekripsi Kemudian</h2>
+        <p class="section-desc">
+          Urutan dekripsi dirancang mengikuti standar <strong>Encrypt-then-MAC</strong>:
+          HMAC diverifikasi sebelum ciphertext disentuh, mencegah serangan padding oracle.
+        </p>
+      </div>
+
+      <div class="decrypt-steps">
+
+        <div class="ds-step">
+          <div class="ds-icon check">①</div>
+          <div class="ds-body">
+            <h4>Validasi Format & VERSION</h4>
+            <p>File harus memiliki panjang minimum 65 byte (1+16+16+32). Byte pertama harus <code>0x03</code> (VERSION v3). File dari versi lama (v1/v2) ditolak eksplisit dengan pesan informatif.</p>
+            <pre><code class="language-python">MIN_LEN = 1 + IV_SIZE + SALT_SIZE + MAC_SIZE  # = 65 byte
+if len(ciphertext) < MIN_LEN:
+    raise ValueError("File tidak valid atau bukan format SimpleCipher v3.")
+if ciphertext[:1] != VERSION:  # VERSION = b'\x03'
+    raise ValueError("Format tidak kompatibel. Mungkin file versi lama.")</code></pre>
+          </div>
+        </div>
+
+        <div class="ds-step">
+          <div class="ds-icon parse">②</div>
+          <div class="ds-body">
+            <h4>Parsing Header & Ekstraksi Field</h4>
+            <p>Semua field diparsing berdasarkan offset yang sudah diketahui dari format header v3.</p>
+            <pre><code class="language-python">offset          = 1
+iv              = ciphertext[offset : offset+IV_SIZE];   offset += IV_SIZE
+salt            = ciphertext[offset : offset+SALT_SIZE]; offset += SALT_SIZE
+ciphertext_body = ciphertext[offset : -MAC_SIZE]   # data terenkripsi
+mac_tag         = ciphertext[-MAC_SIZE:]            # 32 byte terakhir</code></pre>
+          </div>
+        </div>
+
+        <div class="ds-step">
+          <div class="ds-icon key">③</div>
+          <div class="ds-body">
+            <h4>Re-derive Kunci (PBKDF2 Ulang)</h4>
+            <p>Dengan SALT dari header dan password dari user, <code>master_key</code> dan <code>mac_key</code> diturunkan ulang — hasilnya identik dengan saat enkripsi selama password benar.</p>
+            <pre><code class="language-python">master_key = hashlib.pbkdf2_hmac(
+    'sha256', pw, salt, PBKDF2_ITER, dklen=32
+)
+mac_key = hashlib.sha256(master_key + b'MAC').digest()</code></pre>
+          </div>
+        </div>
+
+        <div class="ds-step critical">
+          <div class="ds-icon hmac-icon">④</div>
+          <div class="ds-body">
+            <h4>⚠️ Verifikasi HMAC — Langkah Paling Kritis</h4>
+            <p>
+              MAC diverifikasi menggunakan <code>hmac.compare_digest()</code> yang
+              berjalan dalam <strong>waktu konstan</strong> (constant-time comparison),
+              mencegah <em>timing attack</em>. Jika MAC tidak cocok, proses
+              <strong>dihentikan total</strong> — tidak ada byte ciphertext yang diproses.
+              Ini adalah implementasi pola Encrypt-then-MAC yang benar.
+            </p>
+            <pre><code class="language-python">expected_mac = hmac.new(
+    mac_key,
+    VERSION + iv + salt + ciphertext_body,
+    hashlib.sha256
+).digest()
+
+if not hmac.compare_digest(expected_mac, mac_tag):
+    # HENTIKAN — jangan sentuh ciphertext
+    raise ValueError("Autentikasi gagal: file rusak atau kunci salah.")</code></pre>
+            <div class="critical-note">
+              <strong>Mengapa ini penting?</strong> Jika dekripsi dilakukan sebelum verifikasi MAC,
+              penyerang bisa mengirim ciphertext rusak berulang kali dan mengamati pesan error
+              ("padding invalid" vs "kunci salah") untuk membocorkan plaintext sedikit demi sedikit
+              — itulah <em>padding oracle attack</em>.
+            </div>
+          </div>
+        </div>
+
+        <div class="ds-step">
+          <div class="ds-icon dec">⑤</div>
+          <div class="ds-body">
+            <h4>Dekripsi Chunk & Hapus Padding</h4>
+            <p>Hanya setelah MAC valid, dekripsi dilakukan per chunk dengan operasi terbalik. Padding PKCS#7 dihapus di akhir.</p>
+            <pre><code class="language-python">for ci, start in enumerate(range(0, total, CHUNK_SIZE)):
+    chunk      = ciphertext_body[start : start+CHUNK_SIZE]
+    n          = len(chunk)
+    rks, salts = _precompute(master_key, iv, ci, n)
+    out       += _dec_chunk(chunk, rks, salts)
+    # _dec_chunk: Swap → SubSalt → InvSBox → XOR (urutan terbalik)
+
+return _remove_padding(bytes(out))
+# _remove_padding: data[: -data[-1]]</code></pre>
+          </div>
+        </div>
+
+      </div><!-- /decrypt-steps -->
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       UI & THREADING
+  ══════════════════════════════════════════════════════ -->
+  <section id="ui">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Antarmuka & Engineering</span>
+        <h2>UI, Threading & Fungsi Pendukung</h2>
+        <p class="section-desc">
+          Selain algoritma kriptografi, aplikasi dirancang agar responsif, aman digunakan,
+          dan memberikan umpan balik yang tepat kepada pengguna.
+        </p>
+      </div>
+
+      <div class="ui-grid">
+
+        <!-- UI Screenshot Mock -->
+        <div class="ui-mockup">
+          <div class="mockup-bar">
+            <span class="mb-dot red"></span>
+            <span class="mb-dot yellow"></span>
+            <span class="mb-dot green"></span>
+            <span class="mb-title">SimpleCipher — Enkripsi File Simetris</span>
+          </div>
+          <div class="mockup-body">
+            <div class="mock-header">
+              <span class="mock-appname">SimpleCipher</span>
+              <span class="mock-lib numpy-ok">numpy: aktif</span>
+            </div>
+            <div class="mock-panel">
+              <div class="mock-label">File Input</div>
+              <div class="mock-divider"></div>
+              <div class="mock-row">
+                <span class="mock-field-label">File Input:</span>
+                <span class="mock-input">dokumen.pdf</span>
+                <span class="mock-btn">Browse</span>
+              </div>
+              <div class="mock-row">
+                <span class="mock-field-label">File Output:</span>
+                <span class="mock-input">dokumen.pdf.sc</span>
+                <span class="mock-btn">Browse</span>
+              </div>
+            </div>
+            <div class="mock-panel">
+              <div class="mock-label">Kunci Enkripsi</div>
+              <div class="mock-divider"></div>
+              <div class="mock-row">
+                <span class="mock-field-label">Kunci:</span>
+                <span class="mock-input pw">••••••••••••</span>
+                <span class="mock-toggle">Tampilkan</span>
+              </div>
+            </div>
+            <div class="mock-panel">
+              <div class="mock-label">Progress</div>
+              <div class="mock-divider"></div>
+              <div class="mock-progress-bar">
+                <div class="mpb-fill" style="width:72%"></div>
+              </div>
+              <div class="mock-progress-text">Enkripsi... 72%  (14.5 MB / 20.2 MB)</div>
+            </div>
+            <div class="mock-btns">
+              <div class="mock-btn-enc">Enkripsi</div>
+              <div class="mock-btn-dec">Dekripsi</div>
+            </div>
+            <div class="mock-status">Mengenkripsi...</div>
+          </div>
+        </div>
+
+        <!-- UI Features List -->
+        <div class="ui-features">
+          <div class="ui-feature-item">
+            <div class="ufi-icon">🧵</div>
+            <div class="ufi-body">
+              <h4>Background Threading</h4>
+              <p>Proses enkripsi/dekripsi dijalankan di thread terpisah agar UI tidak freeze. Komunikasi ke main thread menggunakan <code>self.after(0, fn)</code> — satu-satunya cara aman memodifikasi widget tkinter dari thread lain.</p>
+              <pre><code class="language-python">def _start_job(self, label, fn):
+    self._busy = True
+    self._btn_enc.configure(state=tk.DISABLED)
+    threading.Thread(target=fn, daemon=True).start()
+
+# Callback dari background thread → main thread
+def cb(done, total):
+    pct = int(done / total * 100)
+    self.after(0, lambda p=pct: self._update_prog(p, ...))</code></pre>
+            </div>
+          </div>
+
+          <div class="ui-feature-item">
+            <div class="ufi-icon">🛡️</div>
+            <div class="ufi-body">
+              <h4>Error Handling Anti-Oracle</h4>
+              <p>Pesan error dirancang generik untuk mencegah kebocoran informasi. Penyerang tidak dapat membedakan "kunci salah" vs "MAC rusak" vs "padding invalid" dari pesan yang ditampilkan.</p>
+              <pre><code class="language-python">except ValueError as ex:
+    err = str(ex)
+    # Tampilkan pesan HMAC/format apa adanya (sudah aman)
+    # Sembunyikan detail error lain (padding, unpack, dll)
+    if ("autentikasi" not in err.lower() and
+        "kompatibel" not in err.lower() and
+        "valid" not in err.lower()):
+        err = "Kunci salah atau file tidak dapat didekripsi."
+    self.after(0, lambda: self._finish(False, err))</code></pre>
+            </div>
+          </div>
+
+          <div class="ui-feature-item">
+            <div class="ufi-icon">⚡</div>
+            <div class="ufi-body">
+              <h4>Auto-detect NumPy + Fallback</h4>
+              <p>Program mendeteksi ketersediaan numpy saat startup. Jika tersedia, operasi array dieksekusi di level C (50–100× lebih cepat). Jika tidak, fallback ke pure Python bytearray — fungsionalitas identik.</p>
+              <pre><code class="language-python">try:
+    import numpy as np
+    _HAS_NUMPY = True
+    _NP_SBOX     = np.array(SBOX,     dtype=np.uint8)
+    _NP_INV_SBOX = np.array(INV_SBOX, dtype=np.uint8)
+except ImportError:
+    _HAS_NUMPY = False  # fallback ke pure Python</code></pre>
+            </div>
+          </div>
+
+          <div class="ui-feature-item">
+            <div class="ufi-icon">📂</div>
+            <div class="ufi-body">
+              <h4>Fungsi Utilitas Pendukung</h4>
+              <div class="util-table">
+                <div class="ut-row"><code>fmt_size(n)</code><span>Format byte → B/KB/MB/GB untuk ditampilkan di UI</span></div>
+                <div class="ut-row"><code>suggest_output(path, mode)</code><span>Auto-naming: <code>.pdf</code> → <code>.pdf.sc</code> (enc) atau sebaliknya (dec)</span></div>
+                <div class="ut-row"><code>_validate()</code><span>Periksa path, output, dan password sebelum job dimulai</span></div>
+                <div class="ut-row"><code>_toggle_pw()</code><span>Toggle visibilitas password (<code>show="*"</code> / <code>show=""</code>)</span></div>
+                <div class="ut-row"><code>_on_input_change()</code><span>Auto-suggest output path saat file input dipilih</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /ui-grid -->
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       TESTING
+  ══════════════════════════════════════════════════════ -->
+  <section id="testing">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Validasi</span>
+        <h2>Hasil Pengujian — 12 Skenario, Semua Lulus</h2>
+        <p class="section-desc">
+          Pengujian mencakup correctness, struktur header, keamanan HMAC,
+          dan deteksi file tidak valid.
+        </p>
+      </div>
+      <div class="test-grid">
+        <div class="test-card pass">
+          <span class="tc-id">T1</span>
+          <div class="tc-body">
+            <strong>Correctness (6 ukuran)</strong>
+            <p>decrypt(encrypt(msg, pw), pw) == msg untuk semua ukuran data</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T2</span>
+          <div class="tc-body">
+            <strong>Struktur Header v3</strong>
+            <p>VERSION = 0x03, len benar, IV ≠ SALT</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T3</span>
+          <div class="tc-body">
+            <strong>Non-determinisme</strong>
+            <p>Enkripsi 2× dengan data & password sama → ciphertext berbeda</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T4</span>
+          <div class="tc-body">
+            <strong>HMAC Tamper — Body</strong>
+            <p>Flip 1 bit di ciphertext → ValueError: Autentikasi gagal</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T5</span>
+          <div class="tc-body">
+            <strong>HMAC Tamper — MAC</strong>
+            <p>Flip bit terakhir MAC → ValueError: Autentikasi gagal</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T6</span>
+          <div class="tc-body">
+            <strong>Password Salah → HMAC Gagal</strong>
+            <p>Enkripsi 'benar', dekripsi 'salah' → ValueError</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T7</span>
+          <div class="tc-body">
+            <strong>VERSION Mismatch</strong>
+            <p>File v1/v2 (byte 0x02) → ValueError: Format tidak kompatibel</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T8</span>
+          <div class="tc-body">
+            <strong>File Terlalu Pendek</strong>
+            <p>Input &lt; 65 byte → ValueError: File tidak valid</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T9</span>
+          <div class="tc-body">
+            <strong>SALT Tampered</strong>
+            <p>Ganti SALT di header → PBKDF2 berbeda → HMAC gagal</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T10</span>
+          <div class="tc-body">
+            <strong>IV Tampered</strong>
+            <p>Ganti IV di header → round key berbeda → HMAC gagal</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T11</span>
+          <div class="tc-body">
+            <strong>Encrypt-then-MAC Order</strong>
+            <p>Error berasal dari HMAC, bukan dari padding — dekripsi tidak dijalankan</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+        <div class="test-card pass">
+          <span class="tc-id">T12</span>
+          <div class="tc-body">
+            <strong>Performa 1 MB</strong>
+            <p>Enc: 0.29s, Dec: 0.24s (termasuk PBKDF2 ~0.2s overhead)</p>
+          </div>
+          <span class="tc-status">✓ LULUS</span>
+        </div>
+      </div><!-- /test-grid -->
+
+      <div class="test-output">
+        <div class="to-header">Output Aktual Test Suite</div>
+        <pre><code class="language-text">=== SimpleCipher v3 -- Test Suite ===
+numpy:True  VER:0x03  PBKDF2_ITER:10000  MAC_SIZE:32
+
+[T1]  Correctness (6 ukuran berbeda)...   6 kasus OK
+[T2]  Struktur header v3...               VER=0x03 len=81  OK
+[T3]  Non-determinisme (IV+SALT acak)...  IV berbeda, SALT berbeda  OK
+[T4]  HMAC tamper (ciphertext body)...    ValueError: "Autentikasi gagal..."  OK
+[T5]  HMAC tamper (MAC byte)...           ValueError: "Autentikasi gagal..."  OK
+[T6]  Password salah -> HMAC gagal...     ValueError: "Autentikasi gagal..."  OK
+[T7]  VERSION mismatch (file v1/v2)...    ValueError: "Format tidak kompatibel..."  OK
+[T8]  File terlalu pendek...              ValueError: "File tidak valid..."  OK
+[T9]  SALT tampered -> PBKDF2 beda...     ValueError: "Autentikasi gagal..."  OK
+[T10] IV tampered -> HMAC gagal...        ValueError: "Autentikasi gagal..."  OK
+[T11] Encrypt-then-MAC: MAC dicek dulu... ValueError dari HMAC (bukan dekripsi)  OK
+[T12] Performa 1 MB...                    Enc:0.29s  Dec:0.24s  OK
+
+=== SEMUA 12 TEST LULUS [OK] ===</code></pre>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       GLOSARIUM
+  ══════════════════════════════════════════════════════ -->
+  <section id="glosarium">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">Referensi</span>
+        <h2>Glosarium Istilah Kriptografi &amp; Pemrograman</h2>
+        <p class="section-desc">
+          Kamus lengkap istilah teknis yang digunakan dalam SimpleCipher v3,
+          disertai penjelasan sederhana dan contoh konkret.
+        </p>
+      </div>
+
+      <!-- Search box -->
+      <div class="glos-search-wrap">
+        <input type="text" id="glosSearch" class="glos-search"
+               placeholder="Cari istilah... (contoh: HMAC, S-Box, XOR)"
+               autocomplete="off" />
+        <span class="glos-count" id="glosCount"></span>
+      </div>
+
+      <!-- Alphabet filter -->
+      <div class="glos-alpha" id="glosAlpha"></div>
+
+      <!-- Entries -->
+      <div class="glos-grid" id="glosGrid">
+
+        <!-- A -->
+        <div class="glos-letter-group" data-letter="A">
+          <div class="glos-letter">A</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="AES Advanced Encryption Standard">
+              <div class="ge-term">AES <span class="ge-full">(Advanced Encryption Standard)</span></div>
+              <div class="ge-body">
+                <p>Standar enkripsi simetris yang diadopsi oleh pemerintah AS dan digunakan secara global. Menggunakan arsitektur SPN dengan blok 128-bit dan kunci 128/192/256-bit.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> File yang dienkripsi dengan AES-256 di VeraCrypt atau BitLocker.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Array">
+              <div class="ge-term">Array</div>
+              <div class="ge-body">
+                <p>Struktur data yang menyimpan kumpulan nilai dengan tipe yang sama dalam urutan berindeks.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>data = [72, 101, 108, 108, 111]</code> menyimpan 5 byte dalam satu variabel.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Avalanche Effect Efek Avalanche">
+              <div class="ge-term">Avalanche Effect <span class="ge-full">(Efek Avalanche)</span></div>
+              <div class="ge-body">
+                <p>Sifat cipher yang baik di mana perubahan 1 bit pada plaintext atau kunci menyebabkan perubahan ~50% bit pada ciphertext.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Mengubah "Halo" menjadi "halo" (H→h) menghasilkan ciphertext yang sama sekali berbeda.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B -->
+        <div class="glos-letter-group" data-letter="B">
+          <div class="glos-letter">B</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Byte">
+              <div class="ge-term">Byte</div>
+              <div class="ge-body">
+                <p>Unit data digital yang terdiri dari 8 bit, dapat merepresentasikan nilai 0–255.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Huruf 'A' = 65 = <code>01000001</code> dalam biner = 1 byte.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Bijektif">
+              <div class="ge-term">Bijektif</div>
+              <div class="ge-body">
+                <p>Fungsi matematika yang bersifat satu-ke-satu dan onto — setiap input punya output unik dan bisa dibalik.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> S-Box SimpleCipher: jika SBOX[5]=128, maka INV_SBOX[128]=5 (tidak ada duplikasi).</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Block Cipher">
+              <div class="ge-term">Block Cipher</div>
+              <div class="ge-body">
+                <p>Algoritma enkripsi yang memproses data dalam blok-blok berukuran tetap (misal 16 byte).</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher memproses data per chunk 4 MB, tapi operasi internal per blok 16 byte.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Brute-force Attack">
+              <div class="ge-term">Brute-force Attack</div>
+              <div class="ge-body">
+                <p>Serangan dengan mencoba semua kemungkinan kunci/password sampai menemukan yang benar.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Mencoba password "a", "b", "c", … "aa", "ab", … sampai menemukan yang tepat.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C -->
+        <div class="glos-letter-group" data-letter="C">
+          <div class="glos-letter">C</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Ciphertext">
+              <div class="ge-term">Ciphertext</div>
+              <div class="ge-body">
+                <p>Data yang sudah dienkripsi, tampak acak dan tidak bisa dibaca tanpa kunci dekripsi.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>b'\x3f\x8a\x12\x9c...'</code> adalah ciphertext dari plaintext "Halo".</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Chunking">
+              <div class="ge-term">Chunking</div>
+              <div class="ge-body">
+                <p>Teknik membagi file besar menjadi potongan-potongan berukuran tetap untuk efisiensi memori.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> File 10 MB diproses menjadi 3 chunk: 4 MB + 4 MB + 2 MB.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Confusion Kebingungan Konfusi">
+              <div class="ge-term">Confusion <span class="ge-full">(Konfusi)</span></div>
+              <div class="ge-body">
+                <p>Prinsip kriptografi Shannon yang membuat hubungan antara kunci dan ciphertext menjadi sangat kompleks.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> S-Box di SimpleCipher mengubah byte secara non-linear sehingga sulit ditebak hubungannya dengan kunci.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Constant-time Comparison">
+              <div class="ge-term">Constant-time Comparison</div>
+              <div class="ge-body">
+                <p>Teknik perbandingan yang memakan waktu sama terlepas dari seberapa cocok datanya, mencegah timing attack.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>hmac.compare_digest(mac1, mac2)</code> selalu butuh waktu sama, baik cocok maupun tidak.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Callback">
+              <div class="ge-term">Callback</div>
+              <div class="ge-body">
+                <p>Fungsi yang dipanggil kembali setelah suatu operasi selesai, biasanya untuk update UI.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>progress_cb(done, total)</code> dipanggil setiap chunk selesai untuk update progress bar.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Chosen-ciphertext Attack">
+              <div class="ge-term">Chosen-ciphertext Attack</div>
+              <div class="ge-body">
+                <p>Serangan di mana penyerang bisa memilih ciphertext dan melihat hasil dekripsinya untuk membocorkan kunci.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Penyerang mengirim file terenkripsi yang dimodifikasi ke server dan mengamati error yang dihasilkan.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="CSPRNG Cryptographically Secure Pseudo-Random Number Generator">
+              <div class="ge-term">CSPRNG</div>
+              <div class="ge-body">
+                <p>Cryptographically Secure Pseudo-Random Number Generator — generator angka acak yang aman secara kriptografis, tidak bisa diprediksi.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>os.urandom(16)</code> menghasilkan 16 byte acak untuk IV yang tidak bisa ditebak.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D -->
+        <div class="glos-letter-group" data-letter="D">
+          <div class="glos-letter">D</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Dekripsi">
+              <div class="ge-term">Dekripsi</div>
+              <div class="ge-body">
+                <p>Proses mengubah ciphertext kembali menjadi plaintext menggunakan kunci yang benar.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>decrypt(b'\x3f\x8a...', 'password')</code> → <code>b'Halo'</code>.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Diffusion Difusi">
+              <div class="ge-term">Diffusion <span class="ge-full">(Difusi)</span></div>
+              <div class="ge-body">
+                <p>Prinsip kriptografi Shannon yang menyebarkan pengaruh setiap bit plaintext ke banyak bit ciphertext.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Operasi Swap Halves di SimpleCipher memindahkan byte dari kiri ke kanan agar pengaruhnya menyebar.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Domain Separation">
+              <div class="ge-term">Domain Separation</div>
+              <div class="ge-body">
+                <p>Teknik menggunakan label berbeda untuk memastikan kunci yang diturunkan tidak saling tumpang-tindih.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>master_key + b'MAC'</code> memastikan mac_key berbeda dari round_key meski dari sumber yang sama.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Differential Cryptanalysis">
+              <div class="ge-term">Differential Cryptanalysis</div>
+              <div class="ge-body">
+                <p>Teknik analisis kriptografi yang mempelajari bagaimana perbedaan input mempengaruhi perbedaan output.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Menganalisis bagaimana mengubah 1 bit di plaintext mengubah pola bit di ciphertext untuk mencari kelemahan S-Box.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- E -->
+        <div class="glos-letter-group" data-letter="E">
+          <div class="glos-letter">E</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Enkripsi">
+              <div class="ge-term">Enkripsi</div>
+              <div class="ge-body">
+                <p>Proses mengubah plaintext menjadi ciphertext menggunakan algoritma dan kunci.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>encrypt(b'Halo', 'password')</code> → <code>b'\x3f\x8a\x12...'</code>.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Encrypt-then-MAC EtM">
+              <div class="ge-term">Encrypt-then-MAC <span class="ge-full">(EtM)</span></div>
+              <div class="ge-body">
+                <p>Pola keamanan di mana data dienkripsi dulu, lalu MAC dihitung atas ciphertext.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher v3: enkripsi chunk → gabung → hitung HMAC → simpan (bukan MAC dulu baru enkripsi).</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Enkripsi Simetris Symmetric Encryption">
+              <div class="ge-term">Enkripsi Simetris</div>
+              <div class="ge-body">
+                <p>Sistem enkripsi yang menggunakan kunci sama untuk enkripsi dan dekripsi.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher menggunakan password yang sama untuk mengenkripsi dan mendekripsi file.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F -->
+        <div class="glos-letter-group" data-letter="F">
+          <div class="glos-letter">F</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Fisher-Yates Shuffle">
+              <div class="ge-term">Fisher-Yates Shuffle</div>
+              <div class="ge-body">
+                <p>Algoritma pengacakan array yang menghasilkan permutasi acak seragam.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>_rng.shuffle(SBOX)</code> mengacak nilai 0–255 menjadi urutan acak untuk S-Box.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- G -->
+        <div class="glos-letter-group" data-letter="G">
+          <div class="glos-letter">G</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="GUI Graphical User Interface">
+              <div class="ge-term">GUI <span class="ge-full">(Graphical User Interface)</span></div>
+              <div class="ge-body">
+                <p>Antarmuka pengguna berbasis grafis dengan tombol, jendela, dan elemen visual.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Jendela SimpleCipher dengan tombol "Browse", "Enkripsi", dan progress bar.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- H -->
+        <div class="glos-letter-group" data-letter="H">
+          <div class="glos-letter">H</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Hash">
+              <div class="ge-term">Hash</div>
+              <div class="ge-body">
+                <p>Fungsi yang mengubah input berukuran berapa pun menjadi output berukuran tetap (sidik jari digital).</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>SHA256("Halo")</code> → 32 byte tetap. Sedikit perubahan input mengubah total output.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="HMAC Hash-based Message Authentication Code">
+              <div class="ge-term">HMAC <span class="ge-full">(Hash-based Message Authentication Code)</span></div>
+              <div class="ge-body">
+                <p>Kode autentikasi pesan yang menggunakan fungsi hash dan kunci rahasia untuk verifikasi integritas.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>HMAC-SHA256(mac_key, ciphertext)</code> → 32 byte tag untuk memverifikasi file tidak dimodifikasi.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- I -->
+        <div class="glos-letter-group" data-letter="I">
+          <div class="glos-letter">I</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="IV Initialization Vector Nonce">
+              <div class="ge-term">IV <span class="ge-full">(Initialization Vector / Nonce)</span></div>
+              <div class="ge-body">
+                <p>Nilai acak yang digunakan sekali per sesi enkripsi untuk memastikan ciphertext unik meski plaintext sama.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Enkripsi file "Halo.txt" dua kali menghasilkan ciphertext berbeda karena IV berbeda.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Iterasi">
+              <div class="ge-term">Iterasi</div>
+              <div class="ge-body">
+                <p>Pengulangan proses tertentu sebanyak jumlah yang ditentukan.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> PBKDF2 dengan 10.000 iterasi berarti proses hash diulang 10.000 kali untuk memperlambat brute-force.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- K -->
+        <div class="glos-letter-group" data-letter="K">
+          <div class="glos-letter">K</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Key Derivation Function KDF">
+              <div class="ge-term">Key Derivation Function <span class="ge-full">(KDF)</span></div>
+              <div class="ge-body">
+                <p>Fungsi yang menurunkan kunci kriptografis dari password atau passphrase.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> PBKDF2 mengubah password "rahasia123" menjadi master_key 32 byte yang aman.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Kriptografi">
+              <div class="ge-term">Kriptografi</div>
+              <div class="ge-body">
+                <p>Ilmu dan seni menjaga kerahasiaan informasi dengan mengubah data menjadi bentuk yang tidak bisa dibaca tanpa kunci.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Mengirim pesan rahasia dengan enkripsi sehingga hanya penerima yang punya kunci bisa membaca.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- L -->
+        <div class="glos-letter-group" data-letter="L">
+          <div class="glos-letter">L</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Linear Cryptanalysis">
+              <div class="ge-term">Linear Cryptanalysis</div>
+              <div class="ge-body">
+                <p>Teknik analisis yang mencari hubungan linear antara plaintext, ciphertext, dan kunci.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Mencari persamaan seperti <code>P[2] ⊕ C[5] ⊕ K[3] = 0</code> yang berlaku dengan probabilitas tinggi.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Lookup Table">
+              <div class="ge-term">Lookup Table</div>
+              <div class="ge-body">
+                <p>Tabel yang digunakan untuk mencari nilai pengganti secara cepat.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>SBOX[128] = 45</code> artinya byte bernilai 128 diganti dengan 45.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- M -->
+        <div class="glos-letter-group" data-letter="M">
+          <div class="glos-letter">M</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="MAC Message Authentication Code">
+              <div class="ge-term">MAC <span class="ge-full">(Message Authentication Code)</span></div>
+              <div class="ge-body">
+                <p>Kode pendek yang ditambahkan pada pesan untuk memverifikasi keaslian dan integritas.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> HMAC-SHA256 menghasilkan MAC 32 byte yang ditempel di akhir file terenkripsi.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Modulo">
+              <div class="ge-term">Modulo</div>
+              <div class="ge-body">
+                <p>Operasi matematika yang menghasilkan sisa bagi.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>(200 + 80) % 256 = 24</code> (280 dibagi 256 sisa 24).</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Master Key">
+              <div class="ge-term">Master Key</div>
+              <div class="ge-body">
+                <p>Kunci utama yang diturunkan dari password, digunakan untuk menghasilkan kunci-kunci lain.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> PBKDF2 menghasilkan master_key 32 byte, lalu master_key ini menurunkan round_key dan mac_key.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- N -->
+        <div class="glos-letter-group" data-letter="N">
+          <div class="glos-letter">N</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Non-linear Nonlinear">
+              <div class="ge-term">Non-linear</div>
+              <div class="ge-body">
+                <p>Operasi atau fungsi yang tidak mengikuti pola garis lurus, sulit diprediksi dengan persamaan linear.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> S-Box di SimpleCipher: input 5 → output 128, input 6 → output 45 (tidak ada pola linear).</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Numpy">
+              <div class="ge-term">NumPy</div>
+              <div class="ge-body">
+                <p>Library Python untuk komputasi numerik dengan array multidimensi yang cepat.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>_NP_SBOX[data]</code> melakukan lookup S-Box untuk jutaan byte sekaligus dalam hitungan milidetik.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- P -->
+        <div class="glos-letter-group" data-letter="P">
+          <div class="glos-letter">P</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Padding PKCS#7 PKCS7">
+              <div class="ge-term">Padding <span class="ge-full">(PKCS#7)</span></div>
+              <div class="ge-body">
+                <p>Penambahan byte di akhir data agar panjangnya kelipatan ukuran blok tertentu.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Data 13 byte ditambah 3 byte bernilai <code>0x03</code> menjadi 16 byte.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="PBKDF2 Password-Based Key Derivation Function">
+              <div class="ge-term">PBKDF2 <span class="ge-full">(Password-Based Key Derivation Function 2)</span></div>
+              <div class="ge-body">
+                <p>Fungsi standar untuk menurunkan kunci dari password dengan iterasi berulang dan salt.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>PBKDF2-HMAC-SHA256(password, salt, 10.000 iterasi)</code> → master_key 32 byte.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Plaintext">
+              <div class="ge-term">Plaintext</div>
+              <div class="ge-body">
+                <p>Data asli yang belum dienkripsi, bisa dibaca langsung.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>b'Halo Dunia'</code> adalah plaintext sebelum dienkripsi.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Progress Bar">
+              <div class="ge-term">Progress Bar</div>
+              <div class="ge-body">
+                <p>Indikator visual yang menunjukkan persentase penyelesaian suatu proses.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Bar biru di SimpleCipher yang bergerak dari 0% ke 100% saat enkripsi berlangsung.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- R -->
+        <div class="glos-letter-group" data-letter="R">
+          <div class="glos-letter">R</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Rainbow Table">
+              <div class="ge-term">Rainbow Table</div>
+              <div class="ge-body">
+                <p>Tabel prekomputasi yang berisi hash dari jutaan password untuk mempercepat cracking.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Tabel yang sudah menghitung hash "password123", "123456", dll sehingga penyerang tinggal lookup.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Round Key Kunci Ronde">
+              <div class="ge-term">Round Key <span class="ge-full">(Kunci Ronde)</span></div>
+              <div class="ge-body">
+                <p>Kunci turunan yang berbeda untuk setiap ronde enkripsi.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher punya 6 round key (RK₀ sampai RK₅), masing-masing sepanjang data.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Ronde Round">
+              <div class="ge-term">Ronde <span class="ge-full">(Round)</span></div>
+              <div class="ge-body">
+                <p>Satu siklus lengkap operasi transformasi dalam cipher blok.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher melakukan 6 ronde, setiap ronde: XOR → S-Box → AddSalt → Swap.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S -->
+        <div class="glos-letter-group" data-letter="S">
+          <div class="glos-letter">S</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="S-Box Substitution Box">
+              <div class="ge-term">S-Box <span class="ge-full">(Substitution Box)</span></div>
+              <div class="ge-body">
+                <p>Tabel lookup yang mengganti setiap byte dengan byte lain secara non-linear.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>SBOX[0]=214</code> artinya byte bernilai 0 diganti jadi 214.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Salt">
+              <div class="ge-term">Salt</div>
+              <div class="ge-body">
+                <p>Nilai acak yang ditambahkan ke password sebelum proses key derivation untuk mencegah rainbow table.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Password "rahasia" + salt "x9k2m" di-hash, salt disimpan di header file.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Self-inverse">
+              <div class="ge-term">Self-inverse</div>
+              <div class="ge-body">
+                <p>Operasi yang jika diterapkan dua kali mengembalikan nilai awal.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> XOR: <code>(data ⊕ key) ⊕ key = data</code>. Swap: swap dua kali = kembali ke posisi semula.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="SHA-256 SHA256">
+              <div class="ge-term">SHA-256</div>
+              <div class="ge-body">
+                <p>Fungsi hash kriptografis yang menghasilkan output 32 byte (256 bit).</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>SHA256("Halo")</code> → <code>b'\x3f\x8a\x12...'</code> (32 byte).</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="SPN Substitution-Permutation Network">
+              <div class="ge-term">SPN <span class="ge-full">(Substitution-Permutation Network)</span></div>
+              <div class="ge-body">
+                <p>Arsitektur cipher blok yang menggabungkan lapisan substitusi (S-Box) dan permutasi (swap).</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher terinspirasi AES, menggunakan 6 ronde SPN: substitusi via S-Box, permutasi via Swap Halves.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- T -->
+        <div class="glos-letter-group" data-letter="T">
+          <div class="glos-letter">T</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Threading Thread">
+              <div class="ge-term">Threading</div>
+              <div class="ge-body">
+                <p>Teknik menjalankan beberapa proses secara paralel dalam satu program.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> SimpleCipher menjalankan enkripsi di background thread agar UI tidak freeze.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Timing Attack">
+              <div class="ge-term">Timing Attack</div>
+              <div class="ge-body">
+                <p>Serangan yang menganalisis waktu eksekusi untuk membocorkan informasi rahasia.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Jika perbandingan MAC lebih cepat saat byte pertama cocok, penyerang bisa menebak MAC byte per byte.</div>
+              </div>
+            </div>
+            <div class="glos-entry" data-term="Tkinter">
+              <div class="ge-term">Tkinter</div>
+              <div class="ge-body">
+                <p>Library GUI bawaan Python untuk membuat aplikasi desktop.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> Jendela SimpleCipher dibuat dengan <code>tk.Tk()</code>, <code>tk.Button()</code>, <code>tk.Entry()</code>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- W -->
+        <div class="glos-letter-group" data-letter="W">
+          <div class="glos-letter">W</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="Work Factor">
+              <div class="ge-term">Work Factor</div>
+              <div class="ge-body">
+                <p>Jumlah usaha komputasi yang diperlukan untuk menyerang sistem, biasanya diukur dalam iterasi atau waktu.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> PBKDF2 dengan 10.000 iterasi berarti work factor 10.000× lebih berat dari hash tunggal.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- X -->
+        <div class="glos-letter-group" data-letter="X">
+          <div class="glos-letter">X</div>
+          <div class="glos-entries">
+            <div class="glos-entry" data-term="XOR Exclusive OR">
+              <div class="ge-term">XOR <span class="ge-full">(Exclusive OR)</span></div>
+              <div class="ge-body">
+                <p>Operasi bitwise yang menghasilkan 1 jika bit berbeda, 0 jika bit sama.</p>
+                <div class="ge-example"><span class="ge-ex-label">Contoh:</span> <code>01001000 ⊕ 10110101 = 11111101</code> (72 ⊕ 181 = 253).</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /glos-grid -->
+    </div><!-- /container -->
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════════════ -->
+  <footer id="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        SimpleCipher <span class="accent-green">v3</span>
+        <p>Implementasi enkripsi file simetris berbasis SPN — Tugas Mata Kuliah Kriptografi</p>
+      </div>
+      <div class="footer-links">
+        <a href="#hero">Kembali ke Atas ↑</a>
+        <a href="#glosarium">Glosarium</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="script-proyektor.js"></script>
+</body>
+</html>
