@@ -541,9 +541,7 @@ def _apply_inv_sbox(data: np.ndarray) -> np.ndarray:
               <h4>AddSalt — Penjumlahan Modulo 256</h4>
               <p>
                 Setiap byte data ditambah dengan byte round salt menggunakan aritmatika
-                modulo 256. Berbeda dengan XOR, penjumlahan dapat menyebabkan
-                <strong>carry propagation</strong> — perubahan 1 bit dapat mempengaruhi
-                bit-bit yang lebih tinggi, meningkatkan efek difusi.
+                modulo 256. Penjumlahan di ℤ₂₅₆ memberikan sifat aljabar yang berbeda dari XOR. Ketika dikombinasikan dengan S-Box (non-linear) dan XOR, operasi ini memutus hubungan linear/diferensial yang bisa dimanfaatkan attacker.
               </p>
               <div class="bit-example">
                 <div class="bit-row">
