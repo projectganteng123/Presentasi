@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AR Produk Scanner — Presentasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white: #ffffff;
+  --off: #f7f7f5;
+  --gray-50: #f4f4f2;
+  --gray-100: #e8e8e4;
+  --gray-200: #d0d0ca;
+  --gray-400: #9a9a92;
+  --gray-600: #5c5c58;
+  --gray-900: #18181a;
+  --accent: #e85d04;
+  --accent-2: #0066ff;
+  --accent-3: #00b67a;
+  --accent-dark: #bf4a00;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.10);
+  --radius: 16px;
+  --radius-sm: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--gray-900);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-100);
+  padding: 0 32px;
+  height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.3px;
+  color: var(--gray-900);
+  display: flex; align-items: center; gap: 8px;
+}
+.nav-brand span { color: var(--accent); }
+.nav-links { display: flex; gap: 4px; }
+.nav-links a {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-links a:hover { background: var(--gray-50); color: var(--gray-900); }
+.nav-links a.active { background: var(--gray-900); color: #fff; }
+
+/* HERO */
+.hero {
+  padding: 100px 40px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 60px;
+  align-items: center;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+  color: var(--gray-900);
+  margin-bottom: 20px;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero-sub {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--gray-600);
+  margin-bottom: 28px;
+  max-width: 480px;
+}
+.hero-meta {
+  display: flex; gap: 20px; flex-wrap: wrap;
+}
+.hero-meta-item {
+  display: flex; flex-direction: column;
+}
+.hero-meta-item .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); }
+.hero-meta-item .value { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-top: 2px; }
+
+.hero-card {
+  background: var(--gray-900);
+  border-radius: 24px;
+  padding: 32px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.hero-card::before {
+  content: '';
+  position: absolute; top: -30px; right: -30px;
+  width: 160px; height: 160px;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0.15;
+}
+.hero-card h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.tech-pill {
+  display: inline-block;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 4px;
+}
+.tech-pill.highlight { background: var(--accent); border-color: var(--accent); }
+
+/* SECTIONS */
+.section {
+  padding: 80px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 12px;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 20px; height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.section h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(24px, 3.5vw, 38px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+  line-height: 1.15;
+}
+.section-desc {
+  font-size: 16px;
+  color: var(--gray-600);
+  line-height: 1.7;
+  max-width: 560px;
+  margin-bottom: 48px;
+}
+.divider {
+  border: none;
+  border-top: 1px solid var(--gray-100);
+  margin: 0;
+}
+
+/* STATS STRIPE */
+.stats-stripe {
+  background: var(--gray-900);
+  padding: 48px 40px;
+}
+.stats-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+}
+.stat-item {
+  padding: 32px 24px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+.stat-item:last-child { border-right: none; }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.stat-label { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+/* FEATURE GRID */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.feature-card {
+  background: var(--white);
+  border: 1.5px solid var(--gray-100);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: all 0.25s;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+.feature-card:hover .feature-icon { background: var(--accent); color: #fff; }
+.feature-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--gray-50);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+  transition: all 0.25s;
+}
+.feature-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+.feature-card p {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.65;
+}
+
+/* DIAGRAM AREA */
+.diagram-area {
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-100);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.diagram-tabs {
+  display: flex;
+  border-bottom: 1.5px solid var(--gray-100);
+  background: var(--white);
+  padding: 0 8px;
+  overflow-x: auto;
+}
+.diagram-tab {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-400);
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.diagram-tab:hover { color: var(--gray-900); }
+.diagram-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.diagram-content { padding: 32px; display: none; }
+.diagram-content.active { display: block; }
+
+/* FLOWCHART SVG */
+.flow-wrap { display: flex; justify-content: center; overflow-x: auto; }
+svg.diagram { max-width: 100%; }
+
+/* USE CASE TABLE */
+.usecase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.actor-box {
+  background: var(--white);
+  border: 1.5px solid var(--gray-100);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.actor-header {
+  padding: 16px 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+}
+.actor-header.user { background: #fff4ee; color: var(--accent); }
+.actor-header.admin { background: #eef4ff; color: var(--accent-2); }
+.actor-body { padding: 8px 12px 12px; }
+.uc-item {
+  padding: 10px 14px;
+  margin: 4px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--gray-700, #3c3c3a);
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+}
+.uc-item .uc-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--white);
+  background: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+.uc-item.admin-uc .uc-num { background: var(--accent-2); }
+
+/* ARCH LAYERS */
+.arch-layers { display: flex; flex-direction: column; gap: 12px; }
+.arch-layer {
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  border: 1.5px solid;
+  transition: all 0.25s;
+}
+.arch-layer:hover { transform: translateX(4px); }
+.arch-layer.client { border-color: #ffd0b5; background: #fff8f4; }
+.arch-layer.service { border-color: #c0d8ff; background: #f0f6ff; }
+.arch-layer.data { border-color: #b8ebd5; background: #f0faf5; }
+.arch-layer-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.arch-layer.client .arch-layer-icon { background: #ffe5d0; }
+.arch-layer.service .arch-layer-icon { background: #d5e8ff; }
+.arch-layer.data .arch-layer-icon { background: #d0f0e5; }
+.arch-layer-body h4 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.arch-layer-body p { font-size: 13px; color: var(--gray-600); line-height: 1.6; }
+.arch-arrow {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gray-400);
+  font-style: italic;
+  padding: 0 16px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.arch-arrow::before, .arch-arrow::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--gray-200);
+}
+
+/* DB SCHEMA */
+.db-table {
+  background: var(--white);
+  border: 1.5px solid var(--gray-100);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.db-table-header {
+  background: var(--gray-900);
+  padding: 14px 20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  display: flex; align-items: center; gap: 10px;
+}
+.db-table-header .db-icon { color: var(--accent); }
+table.schema {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+table.schema th {
+  background: var(--gray-50);
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gray-600);
+  border-bottom: 1.5px solid var(--gray-100);
+}
+table.schema td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--gray-50);
+  color: var(--gray-900);
+  vertical-align: top;
+}
+table.schema tr:last-child td { border-bottom: none; }
+table.schema tr:hover td { background: var(--gray-50); }
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.badge-pk { background: #fff1e5; color: var(--accent); }
+.badge-nn { background: #e5f0ff; color: var(--accent-2); }
+.badge-uk { background: #fce8ff; color: #9b3dca; }
+.badge-opt { background: var(--gray-50); color: var(--gray-600); }
+.code-type { font-family: monospace; font-size: 12px; color: var(--accent-2); }
+
+/* CONCLUSION */
+.conclusion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.conclusion-card {
+  border-radius: var(--radius);
+  padding: 24px;
+  border: 1.5px solid var(--gray-100);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+.conclusion-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+}
+.conclusion-card.orange::before { background: var(--accent); }
+.conclusion-card.blue::before { background: var(--accent-2); }
+.conclusion-card.green::before { background: var(--accent-3); }
+.conclusion-card.dark::before { background: var(--gray-900); }
+.conclusion-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+  padding-left: 12px;
+}
+.conclusion-card p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--gray-600);
+  padding-left: 12px;
+}
+
+/* TEAM */
+.team-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.team-card {
+  flex: 1; min-width: 180px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-100);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.team-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.team-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--gray-900);
+  margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--accent);
+}
+.team-card h4 { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px; }
+.team-card p { font-size: 12px; color: var(--gray-400); }
+
+/* PROGRESS BARS */
+.progress-list { display: flex; flex-direction: column; gap: 16px; }
+.progress-item {}
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.progress-label { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+.progress-val { font-size: 13px; font-weight: 700; color: var(--accent); }
+.progress-bar {
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 1.5s cubic-bezier(.22,1,.36,1);
+  width: 0;
+}
+
+/* FOOTER */
+footer {
+  background: var(--gray-900);
+  padding: 40px;
+  text-align: center;
+}
+footer p { font-size: 13px; color: rgba(255,255,255,0.3); }
+footer span { color: var(--accent); }
+
+/* ANIMATE ON SCROLL */
+.anim-in { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.anim-in.visible { opacity: 1; transform: none; }
+
+@media (max-width: 780px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-card { display: none; }
+  .stats-inner { grid-template-columns: repeat(2,1fr); }
+  .feature-grid { grid-template-columns: 1fr; }
+  .usecase-grid { grid-template-columns: 1fr; }
+  .conclusion-grid { grid-template-columns: 1fr; }
+  nav { padding: 0 16px; }
+  .nav-links { display: none; }
+  .section { padding: 60px 20px; }
+  .hero { padding: 80px 20px 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="#e85d04"/><rect x="14" y="2" width="8" height="8" rx="1.5" fill="#e85d04" opacity=".4"/><rect x="2" y="14" width="8" height="8" rx="1.5" fill="#e85d04" opacity=".4"/><circle cx="18" cy="18" r="4" fill="#e85d04"/></svg>
+    AR <span>Produk</span> Scanner
+  </div>
+  <div class="nav-links">
+    <a href="#overview" class="active">Ikhtisar</a>
+    <a href="#fiturutama">Fitur Utama</a>
+    <a href="#diagram&arsitektur">Diagram Arsitektur</a>
+    <a href="#performa">Performa & Hasil Uji</a>
+    <a href="#kesimpulan">Kesimpulan</a>
+
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="overview">
+  <div>
+    <div class="hero-badge">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
+      Laporan Penelitian — 2026
+    </div>
+    <h1>Implementasi <em>AR</em> Berbasis Web dengan Barcode Scanner</h1>
+    <p class="hero-sub">Sistem Progressive Web App yang mengintegrasikan pemindaian barcode, visualisasi model 3D, Augmented Reality, dan panel administrasi produk berbasis cloud — untuk transformasi digital UMKM Indonesia.</p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">Institusi</span>
+        <span class="value">Bina Sarana Informatika</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Program</span>
+        <span class="value">Teknologi Informasi</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Tahun</span>
+        <span class="value">2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-card anim-in">
+    <h3>🛠 Stack Teknologi</h3>
+    <div style="margin-top: 8px;">
+      <span class="tech-pill highlight">WebXR API</span>
+      <span class="tech-pill highlight">Google Model Viewer</span>
+      <span class="tech-pill">html5-qrcode</span>
+      <span class="tech-pill">Supabase</span>
+      <span class="tech-pill">JsBarcode</span>
+      <span class="tech-pill">PostgreSQL</span>
+      <span class="tech-pill">PWA</span>
+      <span class="tech-pill">JavaScript ES6+</span>
+      <span class="tech-pill">GLTF / GLB</span>
+      <span class="tech-pill">Jamstack</span>
+    </div>
+    <div style="margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.07); border-radius: 12px; font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6;">
+      Studi kasus: Sistem AR Produk Scanner dengan panel admin terintegrasi, generator barcode, dan manajemen aset 3D berbasis cloud.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- STATS -->
+<div class="stats-stripe">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num" data-count="16">0</div>
+      <div class="stat-label">Kebutuhan Fungsional</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-count="100">0</div>
+      <div class="stat-label">% Akurasi Scan Barcode</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-count="5">0</div>
+      <div class="stat-label">Model 3D Produk Diuji</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num" data-count="1000" data-suffix="ms">0</div>
+      <div class="stat-label">Rata-rata Deteksi Barcode ~1000ms</div>
+    </div>
+  </div>
+</div>
+
+<!-- FITUR UTAMA -->
+<section class="section" id="fiturutama">
+  <div class="anim-in">
+    <p class="section-label">Komponen Sistem</p>
+    <h2>6 Fitur Utama Sistem</h2>
+    <p class="section-desc">Setiap fitur dirancang dalam modul dengan pola arsitektur yang bersih, memisahkan tanggung jawab secara jelas antar lapisan aplikasi.</p>
+  </div>
+  <div class="feature-grid anim-in">
+    <div class="feature-card">
+      <div class="feature-icon">📷</div>
+      <h4>Barcode Scanner</h4>
+      <p>Pemindaian real-time via kamera smartphone menggunakan html5-qrcode (ZXing engine). Mendukung EAN-13, CODE-128, QR Code, UPC. Debounce 3 detik per barcode unik, plus fallback input manual.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧊</div>
+      <h4>3D Viewer & AR</h4>
+      <p>Visualisasi model .glb interaktif menggunakan Google Model Viewer. Mode Augmented Reality via WebXR API (Android) dan Quick Look (iOS). Superimposisi objek 3D pada permukaan nyata secara real-time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">☁️</div>
+      <h4>Cloud Database</h4>
+      <p>Backend-as-a-Service menggunakan Supabase (PostgreSQL). Lazy client initialization, pola Repository, async/await. Object Storage untuk aset .glb dan poster produk dengan nama file unik berbasis timestamp.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚙️</div>
+      <h4>Panel Admin</h4>
+      <p>Manajemen produk CRUD penuh: tambah, edit, hapus, pencarian real-time tanpa request jaringan. Statistik produk dinamis. Upload drag-and-drop untuk aset 3D dan gambar poster.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏷️</div>
+      <h4>Generator Barcode</h4>
+      <p>Render barcode CODE128 ke SVG menggunakan JsBarcode. Konfigurasi ukuran bar secara real-time, pratinjau langsung. Ekspor PNG via Canvas API dengan nama & harga produk. Cetak multi-label ke printer fisik.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h4>Progressive Web App</h4>
+      <p>Instalasi ke homescreen tanpa app store. Mode offline parsial via Service Worker. Arsitektur Jamstack: distribusi statis via CDN (GitHub Pages / Netlify). Mandatory HTTPS untuk WebXR & kamera API.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DIAGRAM TABS -->
+<section class="section" id="diagram&arsitektur">
+  <div class="anim-in">
+    <p class="section-label">Perancangan Sistem</p>
+    <h2>Diagram & Arsitektur</h2>
+    <p class="section-desc">Use Case, Flowchart proses utama, arsitektur sistem tiga lapis, dan skema database.</p>
+  </div>
+
+  <div class="diagram-area anim-in">
+    <div class="diagram-tabs">
+      <div class="diagram-tab active" onclick="switchTab(this,'tab-usecase')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Use Case
+      </div>
+      <div class="diagram-tab" onclick="switchTab(this,'tab-flow1')" id="flowchart">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="4" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="8" y="10" width="8" height="4" rx="1"/><rect x="8" y="17" width="8" height="4" rx="1"/><path d="M6.5 7v3"/><path d="M17.5 7v3"/><path d="M12 10v7"/></svg>
+        Flowchart Scanner
+      </div>
+      <div class="diagram-tab" onclick="switchTab(this,'tab-flow2')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="4" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="8" y="10" width="8" height="4" rx="1"/><path d="M6.5 7v3"/><path d="M17.5 7v3"/></svg>
+        Flowchart Barcode Gen
+      </div>
+      <div class="diagram-tab" onclick="switchTab(this,'tab-arch')" id="arsitektur">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="5" rx="1.5"/><rect x="2" y="10" width="20" height="5" rx="1.5"/><rect x="2" y="17" width="20" height="5" rx="1.5"/></svg>
+        Arsitektur Sistem
+      </div>
+      <div class="diagram-tab" onclick="switchTab(this,'tab-db')" id="database">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+        Skema Database
+      </div>
+    </div>
+
+    <!-- USE CASE TAB -->
+    <div class="diagram-content active" id="tab-usecase">
+      <div class="usecase-grid">
+        <div class="actor-box">
+          <div class="actor-header user">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Pengguna / Konsumen
+          </div>
+          <div class="actor-body">
+            <div class="uc-item"><span class="uc-num">UC-01</span>Membuka aplikasi dan mengaktifkan kamera</div>
+            <div class="uc-item"><span class="uc-num">UC-02</span>Memindai barcode produk secara real-time</div>
+            <div class="uc-item"><span class="uc-num">UC-03</span>Memasukkan kode barcode secara manual (fallback)</div>
+            <div class="uc-item"><span class="uc-num">UC-04</span>Melihat informasi lengkap produk (nama, harga, dimensi)</div>
+            <div class="uc-item"><span class="uc-num">UC-05</span>Menampilkan model 3D produk interaktif</div>
+            <div class="uc-item"><span class="uc-num">UC-06</span>Mengaktifkan mode Augmented Reality (AR)</div>
+            <div class="uc-item"><span class="uc-num">UC-07</span>Melihat daftar barcode contoh sebagai panduan</div>
+          </div>
+        </div>
+        <div class="actor-box">
+          <div class="actor-header admin">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Administrator
+          </div>
+          <div class="actor-body">
+            <div class="uc-item admin-uc"><span class="uc-num">UC-08</span>Login ke panel admin berbasis web</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-09</span>Menambah produk baru (Create) dengan aset 3D & poster</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-10</span>Melihat & mencari daftar produk real-time</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-11</span>Mengedit data produk & mengganti aset (Update)</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-12</span>Menghapus produk beserta file aset dari Storage (Delete)</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-13</span>Meng-upload file .glb dan gambar poster ke Supabase</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-14</span>Generate barcode CODE128 dari kode produk</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-15</span>Download barcode sebagai PNG atau cetak label multi-copy</div>
+            <div class="uc-item admin-uc"><span class="uc-num">UC-16</span>Memantau statistik produk (total, 3D, foto)</div>
+          </div>
+        </div>
+      </div>
+      <!-- INCLUDE System boundary visual -->
+      <div style="margin-top: 20px; padding: 16px 20px; background: var(--gray-50); border-radius: 12px; border: 1.5px dashed var(--gray-200); text-align: center; font-size: 13px; color: var(--gray-600);">
+        <strong style="color:var(--gray-900);">Sistem AR Produk Scanner</strong> — Batas sistem mencakup seluruh UC-01 hingga UC-16 di atas.<br>
+        Sistem bergantung pada <strong>Supabase</strong> (database & storage) dan <strong>Google Model Viewer / Scene Viewer</strong> sebagai aktor eksternal.
+      </div>
+    </div>
+
+    <!-- FLOWCHART SCANNER -->
+    <div class="diagram-content" id="tab-flow1" id="flowchart">
+      <div class="flow-wrap">
+        <svg class="diagram" viewBox="0 0 560 760" xmlns="http://www.w3.org/2000/svg" style="max-height:800px">
+          <defs>
+            <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#5c5c58"/>
+            </marker>
+            <filter id="card-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.08"/>
+            </filter>
+          </defs>
+          <style>
+            .fc-start { fill: #18181a; }
+            .fc-proc { fill: #ffffff; stroke: #d0d0ca; stroke-width: 1.5; }
+            .fc-proc-hi { fill: #fff4ee; stroke: #e85d04; stroke-width: 1.5; }
+            .fc-decision { fill: #eef4ff; stroke: #0066ff; stroke-width: 1.5; }
+            .fc-end { fill: #18181a; }
+            .fc-text { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #18181a; text-anchor: middle; }
+            .fc-text-sm { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #5c5c58; text-anchor: middle; }
+            .fc-text-white { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #fff; text-anchor: middle; font-weight: 600; }
+            .fc-line { stroke: #9a9a92; stroke-width: 1.5; marker-end: url(#arr); fill: none; }
+            .fc-label { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #0066ff; font-weight: 600; }
+          </style>
+
+          <!-- START -->
+          <ellipse cx="280" cy="36" rx="64" ry="22" class="fc-start" filter="url(#card-shadow)"/>
+          <text x="280" y="41" class="fc-text-white">MULAI</text>
+          <line x1="280" y1="58" x2="280" y2="82" class="fc-line"/>
+
+          <!-- 1: Buka Aplikasi -->
+          <rect x="170" y="82" width="220" height="44" rx="10" class="fc-proc" filter="url(#card-shadow)"/>
+          <text x="280" y="104" class="fc-text">Buka Aplikasi Web</text>
+          <text x="280" y="118" class="fc-text-sm">(PWA / Browser)</text>
+          <line x1="280" y1="126" x2="280" y2="150" class="fc-line"/>
+
+          <!-- 2: Klik Scan -->
+          <rect x="170" y="150" width="220" height="44" rx="10" class="fc-proc" filter="url(#card-shadow)"/>
+          <text x="280" y="172" class="fc-text">Klik "Mulai Scan"</text>
+          <text x="280" y="186" class="fc-text-sm">Kamera diaktifkan</text>
+          <line x1="280" y1="194" x2="280" y2="218" class="fc-line"/>
+
+          <!-- 3: Arahkan Kamera -->
+          <rect x="170" y="218" width="220" height="44" rx="10" class="fc-proc-hi" filter="url(#card-shadow)"/>
+          <text x="280" y="240" class="fc-text">Arahkan Kamera</text>
+          <text x="280" y="254" class="fc-text-sm">ke Barcode Produk</text>
+          <line x1="280" y1="262" x2="280" y2="290" class="fc-line"/>
+
+          <!-- Decision: Terdeteksi? -->
+          <polygon points="280,290 390,328 280,366 170,328" class="fc-decision" filter="url(#card-shadow)"/>
+          <text x="280" y="322" class="fc-text">Barcode</text>
+          <text x="280" y="338" class="fc-text">Terdeteksi?</text>
+
+          <!-- YES arrow -->
+          <line x1="280" y1="366" x2="280" y2="394" class="fc-line"/>
+          <text x="292" y="382" class="fc-label">Ya</text>
+
+          <!-- NO → manual -->
+          <path d="M390,328 L460,328 L460,430 L390,430" stroke="#9a9a92" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+          <text x="460" y="315" class="fc-label" text-anchor="middle">Tidak</text>
+          <rect x="390" y="398" width="130" height="36" rx="8" fill="#fff8f4" stroke="#e85d04" stroke-width="1.2"/>
+          <text x="455" y="414" class="fc-text-sm" text-anchor="middle" font-size="11">Input Manual</text>
+          <text x="455" y="428" class="fc-text-sm" text-anchor="middle" font-size="10">(Keyboard fallback)</text>
+          <line x1="390" y1="416" x2="340" y2="416" stroke="#9a9a92" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+          <!-- 4: Kirim ke DB -->
+          <rect x="170" y="394" width="220" height="44" rx="10" class="fc-proc" filter="url(#card-shadow)"/>
+          <text x="280" y="416" class="fc-text">Query ke Supabase</text>
+          <text x="280" y="430" class="fc-text-sm">findByBarcode(kode)</text>
+          <line x1="280" y1="438" x2="280" y2="462" class="fc-line"/>
+
+          <!-- Decision: Ada? -->
+          <polygon points="280,462 390,500 280,538 170,500" class="fc-decision" filter="url(#card-shadow)"/>
+          <text x="280" y="494" class="fc-text">Produk</text>
+          <text x="280" y="510" class="fc-text">Ditemukan?</text>
+
+          <!-- YES path -->
+          <line x1="280" y1="538" x2="280" y2="566" class="fc-line"/>
+          <text x="292" y="554" class="fc-label">Ya</text>
+
+          <!-- NO → Error -->
+          <path d="M170,500 L100,500 L100,590 L170,590" stroke="#c13030" stroke-width="1.5" fill="none" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+          <text x="65" y="487" class="fc-label" fill="#c13030" text-anchor="middle">Tidak</text>
+          <rect x="100" y="574" width="70" height="32" rx="6" fill="#fdeaea" stroke="#c13030" stroke-width="1.2"/>
+          <text x="135" y="593" class="fc-text-sm" fill="#c13030" text-anchor="middle">Tampil Error</text>
+
+          <!-- 5: Tampil Info -->
+          <rect x="170" y="566" width="220" height="44" rx="10" class="fc-proc-hi" filter="url(#card-shadow)"/>
+          <text x="280" y="588" class="fc-text">Tampilkan Informasi</text>
+          <text x="280" y="602" class="fc-text-sm">Nama • Harga • Dimensi • Poster</text>
+          <line x1="280" y1="610" x2="280" y2="634" class="fc-line"/>
+
+          <!-- 6: 3D + AR -->
+          <rect x="170" y="634" width="220" height="44" rx="10" class="fc-proc" filter="url(#card-shadow)"/>
+          <text x="280" y="655" class="fc-text">Tampilkan 3D Model</text>
+          <text x="280" y="669" class="fc-text-sm">+ Aktifkan Tombol AR</text>
+          <line x1="280" y1="678" x2="280" y2="702" class="fc-line"/>
+
+          <!-- END -->
+          <ellipse cx="280" cy="724" rx="64" ry="22" class="fc-end" filter="url(#card-shadow)"/>
+          <text x="280" y="729" class="fc-text-white">SELESAI</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- FLOWCHART BARCODE GEN -->
+    <div class="diagram-content" id="tab-flow2">
+      <div class="flow-wrap">
+        <svg class="diagram" viewBox="0 0 560 700" xmlns="http://www.w3.org/2000/svg" style="max-height:740px">
+          <defs>
+            <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#5c5c58"/>
+            </marker>
+            <filter id="sh2" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.08"/>
+            </filter>
+          </defs>
+          <style>
+            .g2-start { fill: #18181a; }
+            .g2-proc { fill: #fff; stroke: #d0d0ca; stroke-width: 1.5; }
+            .g2-hi { fill: #fff4ee; stroke: #e85d04; stroke-width: 1.5; }
+            .g2-hi2 { fill: #eef4ff; stroke: #0066ff; stroke-width: 1.5; }
+            .g2-green { fill: #f0faf5; stroke: #00b67a; stroke-width: 1.5; }
+            .g2-t { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #18181a; text-anchor: middle; }
+            .g2-ts { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #5c5c58; text-anchor: middle; }
+            .g2-tw { font-family: 'DM Sans', sans-serif; font-size: 13px; fill: #fff; text-anchor: middle; font-weight: 600; }
+            .g2-l { stroke: #9a9a92; stroke-width: 1.5; fill: none; marker-end: url(#arr2); }
+            .g2-lbl { font-family: 'DM Sans', sans-serif; font-size: 11px; fill: #0066ff; font-weight: 600; }
+          </style>
+
+          <!-- START -->
+          <ellipse cx="280" cy="36" rx="64" ry="22" class="g2-start" filter="url(#sh2)"/>
+          <text x="280" y="41" class="g2-tw">MULAI</text>
+          <line x1="280" y1="58" x2="280" y2="82" class="g2-l"/>
+
+          <!-- 1 -->
+          <rect x="160" y="82" width="240" height="44" rx="10" class="g2-proc" filter="url(#sh2)"/>
+          <text x="280" y="104" class="g2-t">Admin Klik Ikon Barcode</text>
+          <text x="280" y="118" class="g2-ts">pada baris produk di tabel</text>
+          <line x1="280" y1="126" x2="280" y2="150" class="g2-l"/>
+
+          <!-- 2: Modal terbuka -->
+          <rect x="160" y="150" width="240" height="44" rx="10" class="g2-hi" filter="url(#sh2)"/>
+          <text x="280" y="172" class="g2-t">Modal Generator Terbuka</text>
+          <text x="280" y="186" class="g2-ts">Isi kode, nama, harga produk</text>
+          <line x1="280" y1="194" x2="280" y2="218" class="g2-l"/>
+
+          <!-- 3: Render awal -->
+          <rect x="160" y="218" width="240" height="44" rx="10" class="g2-hi2" filter="url(#sh2)"/>
+          <text x="280" y="240" class="g2-t">JsBarcode Render SVG</text>
+          <text x="280" y="254" class="g2-ts">Format CODE128 otomatis</text>
+          <line x1="280" y1="262" x2="280" y2="286" class="g2-l"/>
+
+          <!-- 4: Config -->
+          <rect x="160" y="286" width="240" height="44" rx="10" class="g2-proc" filter="url(#sh2)"/>
+          <text x="280" y="307" class="g2-t">Admin Atur Ukuran</text>
+          <text x="280" y="321" class="g2-ts">Lebar bar (1/2/3 px) · Tinggi (60/100/150 px)</text>
+          <line x1="280" y1="330" x2="280" y2="354" class="g2-l"/>
+
+          <!-- 5: Re-render -->
+          <rect x="160" y="354" width="240" height="44" rx="10" class="g2-hi2" filter="url(#sh2)"/>
+          <text x="280" y="375" class="g2-t">Barcode Update Otomatis</text>
+          <text x="280" y="389" class="g2-ts">Pratinjau langsung (live preview)</text>
+          <line x1="280" y1="398" x2="280" y2="422" class="g2-l"/>
+
+          <!-- FORK: 3 pilihan -->
+          <rect x="160" y="422" width="240" height="44" rx="10" class="g2-proc" filter="url(#sh2)"/>
+          <text x="280" y="443" class="g2-t">Admin Pilih Aksi</text>
+          <text x="280" y="457" class="g2-ts">Download PNG · Print · Tutup</text>
+
+          <!-- Branches -->
+          <!-- Download -->
+          <path d="M220,466 L130,466 L130,540" stroke="#9a9a92" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="140" y="500" class="g2-lbl" text-anchor="middle" font-size="10">Download</text>
+          <rect x="30" y="540" width="140" height="52" rx="8" class="g2-green" filter="url(#sh2)"/>
+          <text x="100" y="560" class="g2-ts" text-anchor="middle">SVG → Canvas → PNG</text>
+          <text x="100" y="575" class="g2-ts" text-anchor="middle">Simpan ke perangkat</text>
+
+          <!-- Print -->
+          <line x1="280" y1="466" x2="280" y2="540" class="g2-l"/>
+          <text x="292" y="505" class="g2-lbl">Print</text>
+          <rect x="160" y="540" width="240" height="52" rx="8" class="g2-green" filter="url(#sh2)"/>
+          <text x="280" y="560" class="g2-ts">Buka Print Window</text>
+          <text x="280" y="575" class="g2-ts">Render N label · window.print()</text>
+
+          <!-- Tutup -->
+          <path d="M340,466 L430,466 L430,540" stroke="#9a9a92" stroke-width="1.5" fill="none" marker-end="url(#arr2)"/>
+          <text x="420" y="500" class="g2-lbl" text-anchor="middle" font-size="10">Tutup</text>
+          <rect x="360" y="540" width="140" height="52" rx="8" class="g2-proc" filter="url(#sh2)"/>
+          <text x="430" y="566" class="g2-ts" text-anchor="middle">Modal ditutup</text>
+
+          <!-- Merge to END -->
+          <path d="M130,592 L130,650 L280,650" stroke="#9a9a92" stroke-width="1.5" fill="none"/>
+          <path d="M280,592 L280,650" stroke="#9a9a92" stroke-width="1.5" fill="none"/>
+          <path d="M430,592 L430,650 L280,650" stroke="#9a9a92" stroke-width="1.5" fill="none"/>
+          <line x1="280" y1="650" x2="280" y2="668" class="g2-l"/>
+
+          <!-- END -->
+          <ellipse cx="280" cy="690" rx="64" ry="22" class="g2-start" filter="url(#sh2)"/>
+          <text x="280" y="695" class="g2-tw">SELESAI</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ARSITEKTUR -->
+    <div class="diagram-content" id="tab-arch">
+      <div class="arch-layers">
+        <div class="arch-layer client">
+          <div class="arch-layer-icon">🖥️</div>
+          <div class="arch-layer-body">
+            <h4>Lapisan Klien (Browser)</h4>
+            <p>
+              <strong>Halaman Pengguna:</strong> index.html · style.css · app.js (orchestrator) · scanner.js (html5-qrcode wrapper) · database.js (Supabase repo) · ui.js (DOM renderer)<br><br>
+              <strong>Panel Admin:</strong> admin/index.html · admin.css · admin.js (CRUD + JsBarcode generator)<br><br>
+              Diakses melalui Chrome / Safari. PWA dapat diinstal ke homescreen. Mandatory HTTPS untuk akses kamera & WebXR API.
+            </p>
+          </div>
+        </div>
+        <div class="arch-arrow">HTTPS / CDN Distribusi File Statis</div>
+        <div class="arch-layer service">
+          <div class="arch-layer-icon">🌐</div>
+          <div class="arch-layer-body">
+            <h4>Lapisan Layanan (CDN)</h4>
+            <p>
+              <strong>GitHub Pages / Netlify</strong> mendistribusikan file statis HTML, CSS, JS ke edge server secara global. Tidak ada server-side rendering — arsitektur Jamstack murni.<br><br>
+              <strong>Library CDN eksternal:</strong> html5-qrcode · Google Model Viewer · JsBarcode · @supabase/supabase-js
+            </p>
+          </div>
+        </div>
+        <div class="arch-arrow">Supabase JS SDK v2 — REST / Realtime API</div>
+        <div class="arch-layer data">
+          <div class="arch-layer-icon">🗄️</div>
+          <div class="arch-layer-body">
+            <h4>Lapisan Data (Supabase BaaS)</h4>
+            <p>
+              <strong>PostgreSQL Database:</strong> Tabel <code style="background:#d0f0e5;padding:2px 5px;border-radius:4px;font-size:12px">produk</code> — barcode (PK), nama, deskripsi, dimensi, berat, harga, model_url, poster_url, created_at. Row Level Security (RLS) aktif.<br><br>
+              <strong>Object Storage:</strong> Bucket <code style="background:#d0f0e5;padding:2px 5px;border-radius:4px;font-size:12px">produk-assets</code> — /models/*.glb · /posters/*.jpg — URL publik untuk akses langsung di client.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATABASE SCHEMA -->
+    <div class="diagram-content" id="tab-db">
+      <div class="db-table">
+        <div class="db-table-header">
+          <span class="db-icon">◈</span> Tabel: <code>produk</code> &nbsp;·&nbsp; PostgreSQL (Supabase)
+        </div>
+        <table class="schema">
+          <thead>
+            <tr>
+              <th>Kolom</th>
+              <th>Tipe Data</th>
+              <th>Constraint</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>id</strong></td>
+              <td><span class="code-type">uuid</span></td>
+              <td><span class="badge badge-pk">PRIMARY KEY</span></td>
+              <td>Identifikasi unik internal — <em>gen_random_uuid()</em></td>
+            </tr>
+            <tr>
+              <td><strong>barcode</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-nn">NOT NULL</span> <span class="badge badge-uk">UNIQUE</span></td>
+              <td>Kode barcode produk fisik — primary lookup key</td>
+            </tr>
+            <tr>
+              <td><strong>nama</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-nn">NOT NULL</span></td>
+              <td>Nama produk yang ditampilkan di UI</td>
+            </tr>
+            <tr>
+              <td><strong>deskripsi</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-opt">NULLABLE</span></td>
+              <td>Deskripsi panjang produk</td>
+            </tr>
+            <tr>
+              <td><strong>dimensi</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-opt">NULLABLE</span></td>
+              <td>Dimensi fisik — contoh: <em>60×60×85 cm</em></td>
+            </tr>
+            <tr>
+              <td><strong>berat</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-opt">NULLABLE</span></td>
+              <td>Berat produk — contoh: <em>8 kg</em></td>
+            </tr>
+            <tr>
+              <td><strong>harga</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-opt">NULLABLE</span></td>
+              <td>Harga dalam format teks — contoh: <em>Rp 1.250.000</em></td>
+            </tr>
+            <tr>
+              <td><strong>model_url</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-opt">NULLABLE</span></td>
+              <td>URL publik file .glb di Supabase Storage</td>
+            </tr>
+            <tr>
+              <td><strong>poster_url</strong></td>
+              <td><span class="code-type">text</span></td>
+              <td><span class="badge badge-opt">NULLABLE</span></td>
+              <td>URL publik gambar poster produk di Supabase Storage</td>
+            </tr>
+            <tr>
+              <td><strong>created_at</strong></td>
+              <td><span class="code-type">timestamptz</span></td>
+              <td><span class="badge badge-opt">DEFAULT now()</span></td>
+              <td>Waktu produk ditambahkan ke database</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top: 16px; padding: 14px 16px; background: var(--gray-50); border-radius: 10px; font-size: 13px; color: var(--gray-600); line-height: 1.7;">
+        <strong style="color:var(--gray-900);">Catatan keamanan:</strong> Row Level Security (RLS) diaktifkan pada seluruh tabel. Operasi write dibatasi untuk akun administrator terotentikasi. Model Repository pada <code>database.js</code> menggunakan Lazy Client Initialization — Supabase client hanya dibuat saat pertama kali dibutuhkan.
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- TESTING SUMMARY (singkat) -->
+<section class="section" style="padding-top: 64px;" id="performa">
+  <div class="anim-in">
+    <p class="section-label">Pengujian Fungsional</p>
+    <h2>Performa & Hasil Uji</h2>
+    <p class="section-desc">Rangkuman hasil pengujian sistem pada aspek utama — akurasi scan, rendering 3D, AR, dan panel admin.</p>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;" class="anim-in">
+    <div>
+      <div class="progress-list">
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-label">Akurasi Scan Barcode (5 sampel)</span><span class="progress-val">100%</span></div>
+          <div class="progress-bar"><div class="progress-fill" data-width="100" style="background: var(--accent-3)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-label">Kelengkapan Info Produk (8 aspek)</span><span class="progress-val">100%</span></div>
+          <div class="progress-bar"><div class="progress-fill" data-width="100" style="background: var(--accent-3)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-label">Fungsi Panel Admin (12 skenario)</span><span class="progress-val">100%</span></div>
+          <div class="progress-bar"><div class="progress-fill" data-width="100" style="background: var(--accent-3)"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-label">Kualitas Render 3D (5 model)</span><span class="progress-val">100%</span></div>
+          <div class="progress-bar"><div class="progress-fill" data-width="100"></div></div>
+        </div>
+        <div class="progress-item">
+          <div class="progress-header"><span class="progress-label">AR Detection & Placement</span><span class="progress-val">~95%</span></div>
+          <div class="progress-bar"><div class="progress-fill" data-width="95"></div></div>
+        </div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="padding: 16px 20px; border-radius: 12px; background: var(--gray-50); border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); margin-bottom: 6px;">Perangkat Uji</div>
+        <div style="font-size: 14px; font-weight: 600; color: var(--gray-900);">Infinix NOTE 50 Pro</div>
+        <div style="font-size: 13px; color: var(--gray-600);">Android 15 · Chrome 149</div>
+      </div>
+      <div style="padding: 16px 20px; border-radius: 12px; background: var(--gray-50); border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); margin-bottom: 6px;">Waktu Deteksi Barcode</div>
+        <div style="font-size: 14px; font-weight: 600; color: var(--gray-900);">1,0 – 1,8 detik</div>
+        <div style="font-size: 13px; color: var(--gray-600);">Pada pencahayaan normal · jarak 10–20 cm</div>
+      </div>
+      <div style="padding: 16px 20px; border-radius: 12px; background: var(--gray-50); border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--gray-400); margin-bottom: 6px;">Waktu Load Model 3D</div>
+        <div style="font-size: 14px; font-weight: 600; color: var(--gray-900);">5 – 30 detik</div>
+        <div style="font-size: 13px; color: var(--gray-600);">Bergantung ukuran file (14–50 MB) dan koneksi 4G</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- KESIMPULAN -->
+<section class="section" id="kesimpulan">
+  <div class="anim-in">
+    <p class="section-label">Kesimpulan & Saran</p>
+    <h2>Kesimpulan</h2>
+    <p class="section-desc">Empat poin kesimpulan utama dari analisis, implementasi, dan pengujian sistem AR Produk Scanner.</p>
+  </div>
+  <div class="conclusion-grid anim-in">
+    <div class="conclusion-card orange">
+      <h4>✅ Scan Barcode 100% Akurat</h4>
+      <p>Sistem pemindaian barcode berbasis web berhasil diimplementasikan dengan tingkat keberhasilan deteksi 100% (5/5 sampel). Fallback input manual terbukti efektif saat pemindaian optik tidak memungkinkan.</p>
+    </div>
+    <div class="conclusion-card blue">
+      <h4>🧊 Visualisasi 3D & AR Berhasil</h4>
+      <p>Integrasi model .glb dengan Google Model Viewer berhasil merender 5 produk furnitur (14–50 MB) dengan kualitas baik. Mode AR berjalan stabil via Google Scene Viewer di dua kondisi ruangan berbeda.</p>
+    </div>
+    <div class="conclusion-card green">
+      <h4>🏷️ Panel Admin 100% Fungsional</h4>
+      <p>Seluruh 12 skenario pengujian panel admin lulus: CRUD produk, upload aset ke Supabase Storage, pencarian real-time, generator barcode, download PNG, dan cetak label multi-copy.</p>
+    </div>
+    <div class="conclusion-card dark">
+      <h4>☁️ Jamstack Efektif untuk UMKM</h4>
+      <p>Arsitektur Jamstack dengan Supabase BaaS terbukti efisien — mengelola siklus produk dari input data hingga AR tanpa infrastruktur server kompleks. Solusi hemat biaya untuk digitalisasi UMKM Indonesia.</p>
+    </div>
+  </div>
+
+  <!-- SARAN -->
+  <div style="margin-top: 40px; background: var(--gray-50); border-radius: 20px; padding: 32px; border: 1.5px solid var(--gray-100);" class="anim-in">
+    <div style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 20px;">💡 Saran Pengembangan</div>
+    <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;">
+      <div style="padding: 14px 16px; background: var(--white); border-radius: 10px; border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Offline Mode</div>
+        <div style="font-size: 13px; color: var(--gray-600); line-height: 1.6;">Implementasi Service Worker penuh untuk cache data produk saat koneksi tidak stabil.</div>
+      </div>
+      <div style="padding: 14px 16px; background: var(--white); border-radius: 10px; border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--accent-2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Optimasi 3D</div>
+        <div style="font-size: 13px; color: var(--gray-600); line-height: 1.6;">Pipeline otomatis kompresi .glb via gltf-transform atau Draco — target &lt;10 MB.</div>
+      </div>
+      <div style="padding: 14px 16px; background: var(--white); border-radius: 10px; border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--accent-3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Autentikasi</div>
+        <div style="font-size: 13px; color: var(--gray-600); line-height: 1.6;">Tambah Supabase Auth untuk panel admin — hanya pengguna berwenang yang bisa akses CRUD.</div>
+      </div>
+      <div style="padding: 14px 16px; background: var(--white); border-radius: 10px; border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Import Massal</div>
+        <div style="font-size: 13px; color: var(--gray-600); line-height: 1.6;">Fitur import produk via CSV/Excel untuk migrasi katalog yang sudah ada ke sistem baru.</div>
+      </div>
+      <div style="padding: 14px 16px; background: var(--white); border-radius: 10px; border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--accent); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Analitik</div>
+        <div style="font-size: 13px; color: var(--gray-600); line-height: 1.6;">Integrasi sistem analitik: barcode paling sering dipindai, durasi sesi AR, conversion rate.</div>
+      </div>
+      <div style="padding: 14px 16px; background: var(--white); border-radius: 10px; border: 1.5px solid var(--gray-100);">
+        <div style="font-size: 12px; font-weight: 700; color: var(--accent-2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">ML Vision</div>
+        <div style="font-size: 13px; color: var(--gray-600); line-height: 1.6;">TensorFlow.js untuk pengenalan produk dari foto — tanpa barcode fisik pada kemasan.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- TIM -->
+<section class="section">
+  <div class="anim-in">
+    <p class="section-label">Tim Peneliti</p>
+    <h2>Penyusun Laporan</h2>
+  </div>
+  <div class="team-row anim-in">
+    <div class="team-card">
+      <div class="team-avatar">MF</div>
+      <h4>Muhammad Fatikha Rosikha Ilmi</h4>
+      <p>NIM: 17230630</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">RA</div>
+      <h4>Rizqi Akbar Assamil</h4>
+      <p>NIM: 17230416</p>
+    </div>
+    <div class="team-card">
+      <div class="team-avatar">SP</div>
+      <h4>Setiyawan Purwanto</h4>
+      <p>NIM: 17230308</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>Implementasi AR Berbasis Web · <span>Bina Sarana Informatika</span> · Teknologi Informasi · 2026</p>
+  <p style="margin-top: 6px;">Dibuat sebagai media presentasi tugas kuliah.</p>
+</footer>
+
+<script>
+// Tab switching
+function switchTab(el, contentId) {
+  document.querySelectorAll('.diagram-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.diagram-content').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(contentId).classList.add('active');
+}
+
+// Scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      // Progress bars
+      e.target.querySelectorAll('.progress-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.anim-in').forEach(el => observer.observe(el));
+
+// Global progress bar observer
+const progressObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.width = e.target.dataset.width + '%';
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.progress-fill').forEach(el => progressObserver.observe(el));
+
+// Counter animation
+function animateCount(el, target, suffix) {
+  let start = 0;
+  const duration = 1800;
+  const step = (timestamp) => {
+    if (!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(eased * target) + (suffix || '');
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const target = parseInt(e.target.dataset.count);
+      const suffix = e.target.dataset.suffix || '';
+      animateCount(e.target, target, suffix);
+      counterObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+// Nav active link
+const sections = document.querySelectorAll('section[id], .stats-stripe');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>
