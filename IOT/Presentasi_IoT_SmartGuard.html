@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT SmartGuard — Presentasi Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --panel:#F7F9FB; --panel-2:#EEF2F6;
+  --ink:#0B1220; --ink-soft:#475569; --ink-faint:#94A3B8;
+  --line:#E3E8EF; --line-2:#D3DCE6;
+  --primary:#1D4ED8; --primary-soft:#DBEAFE;
+  --cyan:#0891B2; --cyan-soft:#CFFAFE;
+  --ok:#059669; --ok-soft:#D1FAE5;
+  --crit:#DC2626; --crit-soft:#FEE2E2;
+  --warn:#B45309; --warn-soft:#FEF3C7;
+  --shadow:0 1px 2px rgba(11,18,32,.04),0 12px 32px -12px rgba(11,18,32,.12);
+  --shadow-lg:0 2px 4px rgba(11,18,32,.04),0 30px 60px -20px rgba(11,18,32,.22);
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:var(--body); background:var(--bg); color:var(--ink);
+  overflow:hidden; -webkit-font-smoothing:antialiased;
+}
+.deck{position:fixed;inset:0}
+
+/* ---------- SLIDE FRAME ---------- */
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:clamp(28px,5vw,84px) clamp(28px,6vw,110px) clamp(72px,8vh,96px);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(14px) scale(.992);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.16,.84,.44,1);
+}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+.slide-inner{width:100%;max-width:1180px;margin:0 auto}
+
+/* ---------- TYPE ---------- */
+.eyebrow{
+  font-family:var(--mono); font-size:clamp(11px,1.1vw,13px); font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--primary);
+  display:inline-flex; align-items:center; gap:10px; margin-bottom:20px;
+}
+.eyebrow::before{content:"";width:26px;height:2px;background:var(--primary);border-radius:2px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5.6vw,72px);line-height:1.02;letter-spacing:-.02em}
+h2.head{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.2vw,52px);line-height:1.06;letter-spacing:-.018em;margin-bottom:14px}
+.sub{font-size:clamp(15px,1.7vw,21px);color:var(--ink-soft);line-height:1.5;max-width:760px}
+.lead{font-size:clamp(15px,1.6vw,19px);line-height:1.62;color:var(--ink-soft)}
+strong.hl{color:var(--ink);font-weight:700}
+.kw{color:var(--primary);font-weight:600}
+
+/* ---------- COVER ---------- */
+.cover{justify-content:center}
+.cover-grid{display:grid;gap:34px}
+.cover canvas{position:absolute;left:0;right:0;bottom:0;width:100%;height:46%;opacity:.9;pointer-events:none}
+.cover-mark{display:inline-flex;align-items:center;gap:12px;margin-bottom:30px}
+.logo-dot{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--primary),var(--cyan));display:grid;place-items:center;box-shadow:0 8px 22px -8px rgba(29,78,216,.7)}
+.logo-dot svg{width:26px;height:26px}
+.cover-mark b{font-family:var(--disp);font-weight:600;font-size:19px;letter-spacing:.01em}
+.cover h1{font-size:clamp(40px,7.2vw,92px);margin-bottom:18px}
+.cover h1 .grad{background:linear-gradient(100deg,var(--primary),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{font-size:clamp(16px,2vw,24px);max-width:680px}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.chip{font-family:var(--mono);font-size:13px;font-weight:500;padding:8px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--ink-soft)}
+.chip.b{background:var(--primary-soft);border-color:#bcd3fb;color:var(--primary)}
+.team{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.team .mem{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 14px}
+.team .av{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--primary-soft),var(--cyan-soft));display:grid;place-items:center;font-family:var(--disp);font-weight:700;font-size:13px;color:var(--primary)}
+.team .nm{font-weight:600;font-size:14px;line-height:1.1}
+.team .id{font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+.cover-foot{position:absolute;left:clamp(28px,6vw,110px);right:clamp(28px,6vw,110px);bottom:clamp(18px,3vh,30px);font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:.04em}
+
+/* ---------- GRID HELPERS ---------- */
+.cols{display:grid;gap:20px}
+.c2{grid-template-columns:1fr 1fr}
+.c3{grid-template-columns:repeat(3,1fr)}
+.c4{grid-template-columns:repeat(4,1fr)}
+.split{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(28px,4vw,60px);align-items:center}
+
+/* ---------- CARDS ---------- */
+.card{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s,border-color .25s}
+.card.soft{background:var(--panel)}
+.slide.active .reveal{animation:rise .55s both}
+.ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;background:var(--primary-soft);color:var(--primary)}
+.ico svg{width:24px;height:24px}
+.ico.cy{background:var(--cyan-soft);color:var(--cyan)}
+.ico.ok{background:var(--ok-soft);color:var(--ok)}
+.ico.cr{background:var(--crit-soft);color:var(--crit)}
+.ico.wn{background:var(--warn-soft);color:var(--warn)}
+.card h3{font-family:var(--disp);font-weight:600;font-size:clamp(17px,1.7vw,21px);margin-bottom:8px;letter-spacing:-.01em}
+.card p{font-size:clamp(13.5px,1.35vw,15.5px);color:var(--ink-soft);line-height:1.55}
+.qnum{font-family:var(--disp);font-weight:700;font-size:15px;color:var(--primary);background:var(--primary-soft);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;margin-bottom:14px}
+
+/* ---------- AGENDA ---------- */
+.agenda{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 40px;counter-reset:ag}
+.ag-item{display:flex;gap:16px;align-items:baseline;padding:14px 4px;border-bottom:1px solid var(--line)}
+.ag-item .n{font-family:var(--mono);font-size:14px;color:var(--primary);font-weight:500;min-width:28px}
+.ag-item .t{font-family:var(--disp);font-weight:500;font-size:clamp(16px,1.8vw,20px)}
+.ag-item .t small{display:block;font-family:var(--body);font-weight:400;font-size:13px;color:var(--ink-faint);margin-top:2px}
+
+/* ---------- POINT LIST ---------- */
+.plist{display:grid;gap:14px;margin-top:6px}
+.pitem{display:flex;gap:14px;align-items:flex-start}
+.pitem .dot{margin-top:5px;width:20px;height:20px;border-radius:6px;flex:0 0 auto;display:grid;place-items:center;background:var(--primary-soft);color:var(--primary)}
+.pitem .dot svg{width:13px;height:13px}
+.pitem p{font-size:clamp(14px,1.45vw,16.5px);line-height:1.55;color:var(--ink-soft)}
+.pitem p b{color:var(--ink)}
+
+/* ---------- TECH STACK ---------- */
+.stackbar{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.tech{flex:1 1 180px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;transition:.25s}
+.tech .badge{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--cyan);margin-bottom:10px;display:block}
+.tech h3{font-family:var(--disp);font-weight:600;font-size:19px;margin-bottom:6px}
+.tech p{font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+
+/* ---------- ARCHITECTURE ---------- */
+.arch{display:grid;gap:14px;margin-top:8px}
+.layer{position:relative;display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 24px;border-left:5px solid var(--primary)}
+.layer.l2{border-left-color:var(--cyan)}
+.layer.l3{border-left-color:var(--ok)}
+.layer .lname{font-family:var(--disp);font-weight:600;font-size:clamp(16px,1.7vw,20px);min-width:200px}
+.layer .lname span{display:block;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--primary);letter-spacing:.1em;margin-bottom:4px}
+.layer.l2 .lname span{color:var(--cyan)} .layer.l3 .lname span{color:var(--ok)}
+.layer .nodes{display:flex;flex-wrap:wrap;gap:8px}
+.node{font-family:var(--mono);font-size:12.5px;padding:6px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--line-2);color:var(--ink-soft)}
+.flowarrow{display:flex;justify-content:center;color:var(--ink-faint);margin:-4px 0}
+.flowarrow svg{width:22px;height:22px}
+
+/* ---------- TABLE ---------- */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:clamp(13px,1.35vw,15.5px)}
+.tbl th{background:var(--panel-2);text-align:left;font-family:var(--disp);font-weight:600;font-size:13px;letter-spacing:.02em;padding:14px 18px;color:var(--ink);border-bottom:1px solid var(--line)}
+.tbl td{padding:13px 18px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--panel)}
+.tbl td b{color:var(--ink)}
+.tbl .mono{font-family:var(--mono);font-size:13px;color:var(--primary)}
+
+/* ---------- SENSOR CARDS ---------- */
+.sensor{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:left}
+.sensor .tag{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--bg);background:var(--primary);padding:4px 9px;border-radius:6px;display:inline-block;margin-bottom:14px}
+.sensor h3{font-family:var(--disp);font-weight:600;font-size:18px;margin-bottom:6px}
+.sensor p{font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+
+/* ---------- CONSOLE / CODE ---------- */
+.console{background:#0B1220;border-radius:16px;padding:0;overflow:hidden;box-shadow:var(--shadow-lg);border:1px solid #1e293b}
+.console .bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:#111a2e;border-bottom:1px solid #1e293b}
+.console .bar i{width:11px;height:11px;border-radius:50%;display:block}
+.console .bar .t{font-family:var(--mono);font-size:12px;color:#7c8aa5;margin-left:8px}
+.console pre{margin:0;padding:20px 22px;font-family:var(--mono);font-size:clamp(12.5px,1.3vw,15px);line-height:1.7;color:#cbd5e1;overflow:auto}
+.tk{color:#7dd3fc}.ts{color:#86efac}.tn{color:#fda4af}.tc{color:#64748b}.tp{color:#c4b5fd}
+.topic-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:10px}
+.topic-row .pill{font-family:var(--mono);font-size:11px;font-weight:700;padding:4px 9px;border-radius:6px}
+.topic-row .pub{background:var(--cyan-soft);color:var(--cyan)}
+.topic-row .sub2{background:var(--primary-soft);color:var(--primary)}
+.topic-row code{font-family:var(--mono);font-size:14px;color:var(--ink);font-weight:500}
+.topic-row span{font-size:13px;color:var(--ink-faint);margin-left:auto}
+
+/* ---------- STATE MACHINE ---------- */
+.fsm{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;margin-top:10px}
+.state{border-radius:18px;padding:26px 22px;text-align:center;border:2px solid;position:relative}
+.state .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;font-weight:600;margin-bottom:10px;opacity:.85}
+.state .nm{font-family:var(--disp);font-weight:700;font-size:clamp(20px,2.4vw,30px);margin-bottom:8px}
+.state .ds{font-size:13px;line-height:1.5}
+.state.normal{border-color:var(--ok);background:var(--ok-soft)}
+.state.normal .nm{color:var(--ok)} .state.normal .ds{color:#047857}
+.state.crit{border-color:var(--crit);background:var(--crit-soft)}
+.state.crit .nm{color:var(--crit)} .state.crit .ds{color:#b91c1c}
+.state .pulse{position:absolute;top:14px;right:14px;width:12px;height:12px;border-radius:50%}
+.state.normal .pulse{background:var(--ok);animation:beat 1.6s infinite}
+.state.crit .pulse{background:var(--crit);animation:beat .7s infinite}
+.transition{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-faint);font-family:var(--mono);font-size:11px}
+.transition svg{width:60px;color:var(--crit)}
+.lockback{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;background:var(--warn-soft);border:1px dashed var(--warn);border-radius:14px;padding:14px 20px}
+.lockback svg{width:20px;color:var(--warn)}
+.lockback p{font-size:14px;color:#92400e}.lockback b{color:var(--warn)}
+
+/* ---------- METRICS ---------- */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px 24px;position:relative;overflow:hidden}
+.metric::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--primary-soft),transparent 70%);opacity:.6}
+.metric .big{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5vw,58px);line-height:1;letter-spacing:-.02em;color:var(--primary)}
+.metric .big .u{font-size:.42em;color:var(--ink-soft);font-weight:600;margin-left:4px}
+.metric .mlbl{font-family:var(--disp);font-weight:600;font-size:15px;margin-top:12px}
+.metric .mdesc{font-size:12.5px;color:var(--ink-faint);margin-top:4px;line-height:1.45}
+.metric.cy .big{color:var(--cyan)} .metric.cy::after{background:radial-gradient(circle,var(--cyan-soft),transparent 70%)}
+.metric.ok .big{color:var(--ok)} .metric.ok::after{background:radial-gradient(circle,var(--ok-soft),transparent 70%)}
+
+/* check list */
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:12px 28px}
+.chk{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.chk .ck{flex:0 0 auto;width:24px;height:24px;border-radius:7px;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin-top:1px}
+.chk .ck svg{width:14px;height:14px}
+.chk .sg{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.06em;display:block;margin-bottom:2px}
+.chk p{font-size:14.5px;color:var(--ink-soft);line-height:1.45}.chk p b{color:var(--ink)}
+
+/* challenge solution */
+.cs{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:14px}
+.cs>div{padding:18px 22px}
+.cs .prob{background:var(--crit-soft);border-right:1px solid #f6caca}
+.cs .sol{background:var(--ok-soft)}
+.cs .lab{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.08em;margin-bottom:6px}
+.cs .prob .lab{color:var(--crit)} .cs .sol .lab{color:var(--ok)}
+.cs h4{font-family:var(--disp);font-weight:600;font-size:16px;margin-bottom:4px;color:var(--ink)}
+.cs p{font-size:13.5px;line-height:1.5;color:var(--ink-soft)}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.rstep{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;position:relative}
+.rstep .ph{font-family:var(--mono);font-size:11px;color:var(--primary);letter-spacing:.08em;font-weight:600}
+.rstep h4{font-family:var(--disp);font-weight:600;font-size:16.5px;margin:8px 0 6px}
+.rstep p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+
+/* takeaways */
+.take{display:grid;gap:12px}
+.tk-item{display:flex;gap:16px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 20px}
+.tk-item .n{font-family:var(--disp);font-weight:700;font-size:22px;color:var(--bg);background:linear-gradient(135deg,var(--primary),var(--cyan));width:42px;height:42px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto}
+.tk-item p{font-size:clamp(14px,1.5vw,16.5px);line-height:1.45;color:var(--ink)}.tk-item p b{color:var(--primary)}
+
+/* closing */
+.closing{text-align:center;align-items:center}
+.closing .logo-dot{margin:0 auto 26px;width:62px;height:62px;border-radius:18px}
+.closing .logo-dot svg{width:34px;height:34px}
+.closing h2{font-size:clamp(40px,6.5vw,84px);margin-bottom:18px}
+.closing .grad{background:linear-gradient(100deg,var(--primary),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- CHROME ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;height:4px;background:var(--line);z-index:50}
+.progress{height:100%;background:linear-gradient(90deg,var(--primary),var(--cyan));width:0;transition:width .5s ease}
+.nav{position:fixed;bottom:20px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:16px;z-index:50}
+.nav button{font-family:var(--mono);background:var(--bg);border:1px solid var(--line-2);width:42px;height:42px;border-radius:11px;display:grid;place-items:center;cursor:pointer;color:var(--ink);box-shadow:var(--shadow);transition:.2s}
+.nav button:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+.nav button:disabled{opacity:.35;cursor:default;transform:none}
+.nav button svg{width:18px;height:18px}
+.counter{font-family:var(--mono);font-size:13px;color:var(--ink-soft);min-width:54px;text-align:center}
+.counter b{color:var(--ink)}
+.dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;z-index:50}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line-2);cursor:pointer;transition:.25s}
+.dots i.on{background:var(--primary);transform:scale(1.35)}
+.fsbtn{position:fixed;top:18px;right:18px;z-index:50;background:var(--bg);border:1px solid var(--line-2);width:40px;height:40px;border-radius:11px;display:grid;place-items:center;cursor:pointer;color:var(--ink-soft);box-shadow:var(--shadow)}
+.fsbtn:hover{color:var(--primary);border-color:var(--primary)}
+.fsbtn svg{width:17px;height:17px}
+.hint{position:fixed;bottom:22px;right:18px;font-family:var(--mono);font-size:11px;color:var(--ink-faint);z-index:40}
+
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes beat{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.5}}
+.slide.active .reveal:nth-child(1){animation-delay:.05s}
+.slide.active .reveal:nth-child(2){animation-delay:.12s}
+.slide.active .reveal:nth-child(3){animation-delay:.19s}
+.slide.active .reveal:nth-child(4){animation-delay:.26s}
+.slide.active .reveal:nth-child(5){animation-delay:.33s}
+.slide.active .reveal:nth-child(6){animation-delay:.40s}
+
+@media (max-width:860px){
+  .c2,.c3,.c4,.split,.metrics,.checks,.cs,.road,.agenda,.fsm{grid-template-columns:1fr}
+  .fsm{gap:10px}.transition{flex-direction:row;transform:rotate(90deg)}
+  .layer{grid-template-columns:1fr}.layer .lname{min-width:0}
+  .dots{display:none}.hint{display:none}
+  .slide{padding:60px 22px 84px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:opacity .2s!important}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="progress" id="prog"></div></div>
+<button class="fsbtn" id="fs" title="Layar penuh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+
+<div class="deck" id="deck">
+
+  <!-- 1 COVER -->
+  <section class="slide cover active">
+    <canvas id="wave"></canvas>
+    <div class="slide-inner cover-grid">
+      <div class="cover-mark reveal">
+        <span class="logo-dot"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></span>
+        <b>IoT SmartGuard</b>
+      </div>
+      <h1 class="title reveal">Sistem Monitoring &amp;<br>Kontrol Mesin <span class="grad">berbasis IoT</span></h1>
+      <p class="sub reveal">Pemantauan real-time multi-sensor dengan integrasi database time-series untuk analisis data historis dan otomasi kondisi kritis.</p>
+      <div class="meta-row reveal">
+        <span class="chip b">ESP32</span><span class="chip">MQTT · HiveMQ</span><span class="chip">InfluxDB</span><span class="chip">Node-RED</span><span class="chip">3 Sensor</span>
+      </div>
+      <div class="team reveal">
+        <div class="mem"><span class="av">SP</span><div><div class="nm">Setiyawan Purwanto</div><div class="id">17230308</div></div></div>
+        <div class="mem"><span class="av">MF</span><div><div class="nm">M. Fatikha Rosikha Ilmi</div><div class="id">17230863</div></div></div>
+        <div class="mem"><span class="av">RA</span><div><div class="nm">Rizqi Akbar Assamil</div><div class="id">17230416</div></div></div>
+        <div class="mem"><span class="av">TS</span><div><div class="nm">Tasya S</div><div class="id">17230985</div></div></div>
+      </div>
+    </div>
+    <div class="cover-foot">Teknologi Informasi · Fakultas Teknik &amp; Informatika · Universitas Bina Sarana Informatika · Juni 2026</div>
+  </section>
+
+  <!-- 2 AGENDA -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">Daftar Isi</div>
+      <h2 class="head reveal">Alur Presentasi</h2>
+      <div class="agenda reveal" style="margin-top:24px">
+        <div class="ag-item"><span class="n">01</span><div class="t">Pendahuluan <small>Latar belakang, masalah &amp; tujuan</small></div></div>
+        <div class="ag-item"><span class="n">02</span><div class="t">Tinjauan Pustaka <small>Teknologi yang digunakan</small></div></div>
+        <div class="ag-item"><span class="n">03</span><div class="t">Desain Sistem <small>Arsitektur, hardware &amp; logic</small></div></div>
+        <div class="ag-item"><span class="n">04</span><div class="t">Implementasi <small>Firmware, Node-RED &amp; InfluxDB</small></div></div>
+        <div class="ag-item"><span class="n">05</span><div class="t">Hasil &amp; Pembahasan <small>Performa, keandalan &amp; keamanan</small></div></div>
+        <div class="ag-item"><span class="n">06</span><div class="t">Kesimpulan &amp; Saran <small>Capaian &amp; pengembangan lanjutan</small></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 LATAR BELAKANG -->
+  <section class="slide">
+    <div class="slide-inner split">
+      <div>
+        <div class="eyebrow reveal">01 · Pendahuluan</div>
+        <h2 class="head reveal">Latar Belakang</h2>
+        <p class="lead reveal">Di era <strong class="hl">Industri 4.0</strong>, banyak industri masih mengandalkan monitoring mesin secara <strong class="hl">manual</strong>. Keterlambatan mendeteksi kondisi abnormal dapat berujung pada kerusakan komponen, terhentinya produksi, hingga risiko keselamatan kerja.</p>
+        <p class="lead reveal" style="margin-top:14px">IoT memungkinkan sensor terhubung ke internet dan dipantau dari jarak jauh <span class="kw">secara real-time</span> — sehingga keputusan dapat diambil lebih cepat dan tepat.</p>
+      </div>
+      <div class="cols reveal" style="gap:14px">
+        <div class="card soft"><div class="ico cr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div><h3>Monitoring manual</h3><p>Butuh kehadiran operator secara fisik — lambat merespons anomali.</p></div>
+        <div class="card soft"><div class="ico wn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-4 4 4 5-6"/></svg></div><h3>Tanpa data historis</h3><p>Sulit melakukan analisis tren &amp; mempersiapkan predictive maintenance.</p></div>
+        <div class="card soft"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Respons lambat</h3><p>Kondisi kritis seperti suhu berlebih perlu dihentikan dalam hitungan milidetik.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 RUMUSAN MASALAH -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">01 · Pendahuluan</div>
+      <h2 class="head reveal">Rumusan Masalah</h2>
+      <p class="sub reveal" style="margin-bottom:26px">Empat pertanyaan inti yang dijawab oleh sistem IoT SmartGuard.</p>
+      <div class="cols c2 reveal">
+        <div class="card"><div class="qnum">1</div><p class="lead">Bagaimana merancang sistem IoT untuk <strong class="hl">monitoring real-time</strong> kondisi mesin dengan <strong class="hl">multiple sensor</strong> sekaligus?</p></div>
+        <div class="card"><div class="qnum">2</div><p class="lead">Bagaimana mengintegrasikan <strong class="hl">MQTT</strong> dengan cloud broker agar transmisi data <strong class="hl">reliable &amp; aman</strong>?</p></div>
+        <div class="card"><div class="qnum">3</div><p class="lead">Bagaimana menyimpan <strong class="hl">data historis</strong> sensor secara efisien untuk analisis jangka panjang?</p></div>
+        <div class="card"><div class="qnum">4</div><p class="lead">Bagaimana mengimplementasikan <strong class="hl">otomasi</strong> untuk respons cepat terhadap kondisi kritis tanpa intervensi manual?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 TUJUAN & MANFAAT -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">01 · Pendahuluan</div>
+      <h2 class="head reveal">Tujuan &amp; Manfaat</h2>
+      <div class="cols c2 reveal" style="margin-top:22px;gap:32px">
+        <div>
+          <h3 style="font-family:var(--disp);font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:10px"><span class="ico" style="margin:0;width:34px;height:34px;border-radius:9px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg></span>Tujuan</h3>
+          <div class="plist">
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Mengembangkan sistem <b>terintegrasi penuh</b> untuk monitoring real-time mesin.</p></div>
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Komunikasi <b>MQTT yang aman &amp; reliable</b> antara ESP32 dan cloud broker.</p></div>
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Membangun <b>database time-series</b> pendukung analisis &amp; pengembangan AI.</p></div>
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Otomasi <b>relay control</b> untuk respons cepat kondisi kritis.</p></div>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-family:var(--disp);font-size:19px;margin-bottom:14px;display:flex;align-items:center;gap:10px"><span class="ico cy" style="margin:0;width:34px;height:34px;border-radius:9px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.5 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg></span>Manfaat</h3>
+          <div class="plist">
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Meningkatkan <b>keamanan operasional</b> lewat respons otomatis terhadap anomali.</p></div>
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Menyediakan <b>insight data historis</b> untuk optimisasi &amp; predictive maintenance.</p></div>
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Mengurangi <b>downtime &amp; biaya</b> melalui deteksi dini masalah perangkat.</p></div>
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p>Fondasi solid untuk pengembangan <b>AI &amp; machine learning</b> ke depan.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 TINJAUAN PUSTAKA -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">02 · Tinjauan Pustaka</div>
+      <h2 class="head reveal">Teknologi yang Digunakan</h2>
+      <p class="sub reveal" style="margin-bottom:24px">Lima pilar teknologi yang dipadukan secara end-to-end dalam sistem.</p>
+      <div class="stackbar reveal">
+        <div class="tech"><span class="badge">PLATFORM</span><h3>IoT</h3><p>Perangkat fisik saling terhubung &amp; bertukar data otomatis tanpa intervensi manusia.</p></div>
+        <div class="tech"><span class="badge">PROTOKOL</span><h3>MQTT</h3><p>Publish-subscribe ringan, hemat bandwidth &amp; latency rendah untuk perangkat terbatas.</p></div>
+        <div class="tech"><span class="badge">EDGE</span><h3>ESP32</h3><p>Mikrokontroler dual-core dengan WiFi &amp; Bluetooth bawaan sebagai gateway IoT.</p></div>
+        <div class="tech"><span class="badge">DATABASE</span><h3>InfluxDB</h3><p>Time-series database, dioptimalkan untuk data berbasis waktu &amp; query cepat.</p></div>
+        <div class="tech"><span class="badge">DASHBOARD</span><h3>Node-RED</h3><p>Visual flow programming untuk integrasi, monitoring &amp; kontrol via antarmuka web.</p></div>
+      </div>
+      <div class="card soft reveal" style="margin-top:18px">
+        <p class="lead"><strong class="hl">Posisi penelitian:</strong> berbeda dari studi terdahulu yang fokus pada satu aspek saja, makalah ini menyajikan implementasi <span class="kw">end-to-end</span> — akuisisi multi-sensor, komunikasi MQTT aman, penyimpanan time-series, dan otomasi kondisi kritis dalam satu sistem utuh &amp; teruji.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ARSITEKTUR -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">03 · Desain Sistem</div>
+      <h2 class="head reveal">Arsitektur Berlapis</h2>
+      <p class="sub reveal" style="margin-bottom:20px">Tiga lapisan dengan <strong class="hl">separation of concerns</strong> yang jelas — data mengalir dari sensor fisik hingga cloud analytics.</p>
+      <div class="arch reveal">
+        <div class="layer">
+          <div class="lname"><span>LAYER 1</span>Sensor &amp; Aktuator</div>
+          <div class="nodes"><span class="node">DS18B20 · Suhu</span><span class="node">SW-420 · Getaran</span><span class="node">KY-037 · Suara</span><span class="node">Relay Module</span></div>
+        </div>
+        <div class="flowarrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="layer l2">
+          <div class="lname"><span>LAYER 2</span>Edge Computing</div>
+          <div class="nodes"><span class="node">ESP32 Gateway</span><span class="node">Pra-pemrosesan data</span><span class="node">Logic kontrol kritikal</span><span class="node">Latency rendah</span></div>
+        </div>
+        <div class="flowarrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg></div>
+        <div class="layer l3">
+          <div class="lname"><span>LAYER 3</span>Cloud &amp; Analytics</div>
+          <div class="nodes"><span class="node">HiveMQ Broker</span><span class="node">InfluxDB</span><span class="node">Node-RED Dashboard</span><span class="node">Rule Engine</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 HARDWARE -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">03 · Desain Sistem</div>
+      <h2 class="head reveal">Komponen Hardware</h2>
+      <p class="sub reveal" style="margin-bottom:22px">Satu mikrokontroler, tiga sensor, satu aktuator — bekerja sebagai satu kesatuan.</p>
+      <div class="cols c4 reveal" style="gap:14px">
+        <div class="sensor"><span class="tag">DS18B20</span><h3>Sensor Suhu</h3><p>Digital one-wire, rentang −55°C s.d. +125°C, presisi <b>±0.5°C</b>.</p></div>
+        <div class="sensor"><span class="tag" style="background:var(--cyan)">SW-420</span><h3>Sensor Getaran</h3><p>Output digital HIGH saat getaran melebihi threshold mekanis.</p></div>
+        <div class="sensor"><span class="tag" style="background:var(--warn)">KY-037</span><h3>Sensor Suara</h3><p>Deteksi noise lingkungan, dipakai mode digital untuk efisiensi GPIO.</p></div>
+        <div class="sensor"><span class="tag" style="background:var(--crit)">RELAY</span><h3>Relay Module</h3><p>Aktuator pemutus listrik, konfigurasi <b>active-low</b>.</p></div>
+      </div>
+      <div class="card soft reveal" style="margin-top:16px;display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+        <div class="ico" style="margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9zM2 9h2M2 15h2M20 9h2M20 15h2M9 2v2M15 2v2M9 20v2M15 20v2"/></svg></div>
+        <p class="lead" style="flex:1;min-width:240px"><strong class="hl">ESP32</strong> — mikrokontroler 32-bit dual-core dengan WiFi &amp; Bluetooth bawaan, berperan sebagai <span class="kw">gateway IoT</span> yang mengumpulkan data sensor dan menjalankan logic kontrol relay secara lokal.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 PROTOKOL & DATA -->
+  <section class="slide">
+    <div class="slide-inner split">
+      <div>
+        <div class="eyebrow reveal">03 · Desain Sistem</div>
+        <h2 class="head reveal">Protokol &amp; Format Data</h2>
+        <p class="lead reveal" style="margin-bottom:18px">Struktur topic MQTT yang hirarkis &amp; mudah diperluas untuk multiple unit mesin.</p>
+        <div class="reveal">
+          <div class="topic-row"><span class="pill pub">PUBLISH</span><code>mesin/unit1/data</code><span>ESP32 → broker</span></div>
+          <div class="topic-row"><span class="pill sub2">SUBSCRIBE</span><code>mesin/unit1/cmd</code><span>dashboard → ESP32</span></div>
+        </div>
+        <p class="lead reveal" style="margin-top:8px;font-size:14.5px">Cukup tambah <code style="font-family:var(--mono);color:var(--primary)">mesin/unit2/data</code> untuk skala lebih besar — tanpa mengubah arsitektur.</p>
+      </div>
+      <div class="reveal">
+        <div class="console">
+          <div class="bar"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i><span class="t">payload.json — mesin/unit1/data</span></div>
+<pre>{
+  <span class="tk">"suhu"</span>: <span class="tn">45.5</span>,        <span class="tc">// float °C</span>
+  <span class="tk">"getaran"</span>: <span class="tn">0</span>,        <span class="tc">// 0/1</span>
+  <span class="tk">"suara"</span>: <span class="tn">1</span>,          <span class="tc">// 0/1</span>
+  <span class="tk">"relay"</span>: <span class="tn">1</span>,          <span class="tc">// 1=ON 0=OFF</span>
+  <span class="tk">"status"</span>: <span class="ts">"NORMAL"</span>,
+  <span class="tk">"pernahKritis"</span>: <span class="tp">false</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 STATE MACHINE -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">03 · Desain Sistem</div>
+      <h2 class="head reveal">Logic Kontrol — State Machine</h2>
+      <p class="sub reveal" style="margin-bottom:24px">Pendekatan <strong class="hl">fail-safe</strong>: sekali kritis terdeteksi, sistem terkunci hingga reset manual operator.</p>
+      <div class="fsm reveal">
+        <div class="state normal"><span class="pulse"></span><div class="lbl">SUHU &lt; 70°C</div><div class="nm">NORMAL</div><div class="ds">Relay ON · mesin berjalan normal</div></div>
+        <div class="transition"><span>suhu ≥ 70°C</span><svg viewBox="0 0 80 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h66M58 5l10 7-10 7"/></svg><span>pernahKritis = true</span></div>
+        <div class="state crit"><span class="pulse"></span><div class="lbl">SUHU ≥ 70°C</div><div class="nm">KRITIS</div><div class="ds">Relay OFF · mesin dihentikan</div></div>
+        <div class="lockback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <p><b>LOCK aktif</b> — relay tetap OFF meski suhu turun. Mesin hanya bisa menyala lagi setelah <b>reset manual</b> dari dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 FIRMWARE ESP32 -->
+  <section class="slide">
+    <div class="slide-inner split">
+      <div>
+        <div class="eyebrow reveal">04 · Implementasi</div>
+        <h2 class="head reveal">Firmware ESP32</h2>
+        <div class="plist reveal" style="margin-top:8px">
+          <div class="pitem"><span class="dot">1</span><p><b>Koneksi WiFi &amp; MQTT</b> — konek ke HiveMQ via <span class="kw">TLS port 8883</span> untuk keamanan komunikasi.</p></div>
+          <div class="pitem"><span class="dot">2</span><p><b>Pembacaan sensor</b> — interval <span class="kw">3 detik</span>, dikemas ke JSON lalu publish ke topic data.</p></div>
+          <div class="pitem"><span class="dot">3</span><p><b>Logic relay control</b> — flag <code style="font-family:var(--mono);color:var(--primary)">pernahKritis</code> persistent, hanya di-reset via MQTT atau power cycle.</p></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="console">
+          <div class="bar"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i><span class="t">esp32_loop.ino</span></div>
+<pre><span class="tc">// baca sensor tiap 3 detik</span>
+<span class="tp">float</span> suhu = sensors.<span class="tk">getTempC</span>();
+
+<span class="tp">if</span> (suhu &gt;= <span class="tn">70.0</span>) {
+  pernahKritis = <span class="tp">true</span>;
+  <span class="tk">digitalWrite</span>(RELAY, <span class="ts">LOW</span>);  <span class="tc">// OFF</span>
+}
+<span class="tp">if</span> (!pernahKritis)
+  <span class="tk">digitalWrite</span>(RELAY, <span class="ts">HIGH</span>); <span class="tc">// ON</span>
+
+client.<span class="tk">publish</span>(<span class="ts">"mesin/unit1/data"</span>, json);</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 NODE-RED -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">04 · Implementasi</div>
+      <h2 class="head reveal">Node-RED Flow</h2>
+      <p class="sub reveal" style="margin-bottom:22px">Tiga flow utama mengubah data mentah menjadi monitoring, penyimpanan &amp; alert.</p>
+      <div class="cols c3 reveal">
+        <div class="card"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Monitoring &amp; Alert</h3><p>Subscribe data, cek threshold suhu, tulis ke InfluxDB, kirim <b>email alert</b> hanya saat transisi state (anti email flooding).</p></div>
+        <div class="card"><div class="ico cy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><h3>Dashboard &amp; Visualisasi</h3><p>Grafik real-time suhu/getaran/suara, status setiap sensor, toggle relay manual &amp; tombol <b>reset lock</b>.</p></div>
+        <div class="card"><div class="ico ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div><h3>Ekspor CSV</h3><p>Unduh data <b>7 hari terakhir</b> dari InfluxDB dalam format CSV untuk analisis offline &amp; bahan machine learning.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 INFLUXDB -->
+  <section class="slide">
+    <div class="slide-inner split">
+      <div>
+        <div class="eyebrow reveal">04 · Implementasi</div>
+        <h2 class="head reveal">Konfigurasi InfluxDB</h2>
+        <p class="lead reveal">Retention policy <strong class="hl">infinite</strong> dipilih karena volume tiga sensor (interval 3 detik) relatif kecil, namun data lengkap penting sebagai bahan <span class="kw">analisis &amp; pengembangan AI</span> di masa depan.</p>
+      </div>
+      <div class="reveal">
+        <table class="tbl">
+          <tr><th>Parameter</th><th>Nilai</th></tr>
+          <tr><td><b>Organization</b></td><td class="mono">InfluxDBBSI</td></tr>
+          <tr><td><b>Bucket</b></td><td class="mono">"2"</td></tr>
+          <tr><td><b>Retention</b></td><td class="mono">Infinite</td></tr>
+          <tr><td><b>Precision</b></td><td class="mono">Seconds</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 HASIL IMPLEMENTASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">05 · Hasil &amp; Pembahasan</div>
+      <h2 class="head reveal">Implementasi Sukses</h2>
+      <p class="sub reveal" style="margin-bottom:22px">Seluruh subsistem berhasil terintegrasi dan berjalan stabil.</p>
+      <div class="checks reveal">
+        <div class="chk"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><div><span class="sg">KONEKTIVITAS HARDWARE</span><p>3 sensor terbaca <b>stabil &amp; akurat</b>, relay merespons tanpa latency signifikan.</p></div></div>
+        <div class="chk"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><div><span class="sg">KOMUNIKASI MQTT</span><p>Uptime <b>&gt;99%</b>, data tiap 3 detik tanpa loss, terenkripsi TLS.</p></div></div>
+        <div class="chk"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><div><span class="sg">PENYIMPANAN DATA</span><p>Tersimpan konsisten di InfluxDB, query <b>cepat</b> hingga rentang 7 hari.</p></div></div>
+        <div class="chk"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><div><span class="sg">DASHBOARD</span><p>Latency <b>&lt;500 ms</b>, grafik interaktif responsif tanpa page refresh.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 METRICS -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">05 · Hasil &amp; Pembahasan</div>
+      <h2 class="head reveal">Performa &amp; Keandalan</h2>
+      <p class="sub reveal" style="margin-bottom:24px">Hasil pengujian selama <strong class="hl">30 hari</strong> di lingkungan laboratorium.</p>
+      <div class="metrics reveal">
+        <div class="metric"><div class="big"><span data-count="100" data-prefix="&lt;">&lt;100</span><span class="u">ms</span></div><div class="mlbl">Response time relay</div><div class="mdesc">Dari deteksi kritis hingga relay OFF</div></div>
+        <div class="metric cy"><div class="big"><span data-count="99.7" data-dec="1">99.7</span><span class="u">%</span></div><div class="mlbl">Uptime MQTT</div><div class="mdesc">Selama 30 hari pengujian</div></div>
+        <div class="metric ok"><div class="big"><span data-count="2" data-prefix="&lt;">&lt;2</span><span class="u">dtk</span></div><div class="mlbl">Waktu reconnect</div><div class="mdesc">Setelah putus koneksi broker</div></div>
+        <div class="metric"><div class="big">±<span data-count="0.5" data-dec="1">0.5</span><span class="u">°C</span></div><div class="mlbl">Akurasi sensor suhu</div><div class="mdesc">Sesuai datasheet DS18B20</div></div>
+        <div class="metric cy"><div class="big"><span data-count="1" data-prefix="&lt;">&lt;1</span><span class="u">%</span></div><div class="mlbl">False positive rate</div><div class="mdesc">Sensor getaran &amp; suara</div></div>
+        <div class="metric ok"><div class="big"><span data-count="500" data-prefix="&lt;">&lt;500</span><span class="u">ms</span></div><div class="mlbl">Latency dashboard</div><div class="mdesc">Update data real-time Node-RED</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 SKALABILITAS & KEAMANAN -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">05 · Hasil &amp; Pembahasan</div>
+      <h2 class="head reveal">Skalabilitas &amp; Keamanan</h2>
+      <div class="cols c2 reveal" style="margin-top:22px;gap:20px">
+        <div class="card">
+          <div class="ico cy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg></div>
+          <h3>Scalable by design</h3>
+          <div class="plist" style="margin-top:12px">
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)">+</span><p><b>Multiple units</b> — cukup tambah topic MQTT per mesin.</p></div>
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)">+</span><p><b>Data retention</b> — InfluxDB sanggup miliaran data point.</p></div>
+            <div class="pitem"><span class="dot" style="background:var(--cyan-soft);color:var(--cyan)">+</span><p><b>Flow extensible</b> — alert SMS/Telegram &amp; integrasi eksternal.</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div>
+          <h3>Keamanan berlapis</h3>
+          <div class="plist" style="margin-top:12px">
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p><b>TLS encryption</b> menjaga kerahasiaan data MQTT.</p></div>
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p><b>Autentikasi</b> username &amp; password pada broker.</p></div>
+            <div class="pitem"><span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg></span><p><b>Lock mechanism</b> mencegah mesin menyala tanpa persetujuan operator.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 TANTANGAN -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">05 · Hasil &amp; Pembahasan</div>
+      <h2 class="head reveal">Tantangan &amp; Lessons Learned</h2>
+      <div class="reveal" style="margin-top:20px">
+        <div class="cs">
+          <div class="prob"><div class="lab">TANTANGAN</div><h4>Stabilitas koneksi WiFi</h4><p>ESP32 perlu tetap terhubung dalam jangka panjang.</p></div>
+          <div class="sol"><div class="lab">SOLUSI</div><h4>Reconnect logic robust</h4><p>Monitoring signal strength + early warning saat sinyal melemah.</p></div>
+        </div>
+        <div class="cs">
+          <div class="prob"><div class="lab">TANTANGAN</div><h4>Noise pada sensor</h4><p>Getaran &amp; suara rawan false positive bila threshold tak terkalibrasi.</p></div>
+          <div class="sol"><div class="lab">SOLUSI</div><h4>Threshold adjustable</h4><p>Dapat diatur via dashboard + moving average filter untuk smoothing.</p></div>
+        </div>
+        <div class="cs">
+          <div class="prob"><div class="lab">TANTANGAN</div><h4>Konsistensi data</h4><p>Timestamp harus sinkron dengan kondisi real-time mesin.</p></div>
+          <div class="sol"><div class="lab">SOLUSI</div><h4>Sinkronisasi NTP</h4><p>ESP32 sinkron ke server NTP global agar timestamp akurat.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 KESIMPULAN -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">06 · Penutup</div>
+      <h2 class="head reveal">Kesimpulan</h2>
+      <p class="sub reveal" style="margin-bottom:20px">IoT SmartGuard berhasil menjawab keempat rumusan masalah secara end-to-end.</p>
+      <div class="take reveal">
+        <div class="tk-item"><span class="n">1</span><p><b>Monitoring real-time</b> multi-sensor (suhu, getaran, suara) dengan response cepat &amp; akurat.</p></div>
+        <div class="tk-item"><span class="n">2</span><p><b>MQTT + HiveMQ</b> menghadirkan komunikasi reliable &amp; secure antara edge device dan cloud.</p></div>
+        <div class="tk-item"><span class="n">3</span><p><b>InfluxDB</b> menyimpan data historis efisien sebagai fondasi analisis &amp; AI.</p></div>
+        <div class="tk-item"><span class="n">4</span><p><b>Relay locking mechanism</b> memberi respons cepat &amp; fail-safe pada kondisi kritis.</p></div>
+        <div class="tk-item"><span class="n">5</span><p>Terbukti <b>reliable (uptime &gt;99%)</b> &amp; <b>scalable</b> untuk multiple mesin sekaligus.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 SARAN -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow reveal">06 · Penutup</div>
+      <h2 class="head reveal">Saran Pengembangan</h2>
+      <p class="sub reveal" style="margin-bottom:22px">Arah lanjutan untuk menjadikan sistem lebih cerdas &amp; tangguh.</p>
+      <div class="road reveal">
+        <div class="rstep"><div class="ph">AI / ML</div><h4>Predictive Maintenance</h4><p>Memanfaatkan data historis untuk memprediksi kapan maintenance diperlukan.</p></div>
+        <div class="rstep"><div class="ph">AI / ML</div><h4>Anomaly Detection</h4><p>Unsupervised learning mendeteksi pola abnormal tanpa tuning threshold manual.</p></div>
+        <div class="rstep"><div class="ph">NOTIFIKASI</div><h4>Multi-Channel Alert</h4><p>Perluas notifikasi ke SMS, Telegram, atau push notification.</p></div>
+        <div class="rstep"><div class="ph">HARDWARE</div><h4>Efisiensi Energi</h4><p>Power management ESP32 untuk lokasi dengan keterbatasan daya.</p></div>
+        <div class="rstep"><div class="ph">ANALYTICS</div><h4>Advanced Analytics</h4><p>Integrasi BI tools seperti Grafana/Tableau untuk insight lebih dalam.</p></div>
+        <div class="rstep"><div class="ph">EDGE AI</div><h4>TensorFlow Lite</h4><p>Inference model lokal di ESP32 — kurangi latency &amp; ketergantungan cloud.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 CLOSING -->
+  <section class="slide closing">
+    <div class="slide-inner">
+      <div class="logo-dot reveal"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg></div>
+      <h2 class="reveal">Terima <span class="grad">Kasih</span></h2>
+      <p class="sub reveal" style="margin:0 auto 8px;text-align:center">Sesi diskusi &amp; tanya jawab — IoT SmartGuard</p>
+      <div class="meta-row reveal" style="justify-content:center">
+        <span class="chip">Setiyawan Purwanto</span><span class="chip">M. Fatikha Rosikha Ilmi</span><span class="chip">Rizqi Akbar Assamil</span><span class="chip">Tasya S</span>
+      </div>
+      <p class="reveal" style="margin-top:26px;font-family:var(--mono);font-size:12px;color:var(--ink-faint)">Universitas Bina Sarana Informatika · Juni 2026</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- CHROME -->
+<div class="dots" id="dots"></div>
+<div class="nav">
+  <button id="prev" title="Sebelumnya (←)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="counter"><b id="cur">1</b> / <span id="tot">20</span></div>
+  <button id="next" title="Berikutnya (→)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+</div>
+<div class="hint">← → navigasi · F layar penuh</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+let idx=0;
+const prog=document.getElementById('prog');
+const cur=document.getElementById('cur');
+const dotsWrap=document.getElementById('dots');
+document.getElementById('tot').textContent=total;
+
+slides.forEach((_,i)=>{const d=document.createElement('i');d.onclick=()=>go(i);dotsWrap.appendChild(d);});
+const dots=[...dotsWrap.children];
+
+function go(n){
+  n=Math.max(0,Math.min(total-1,n));
+  slides[idx].classList.remove('active');
+  dots[idx].classList.remove('on');
+  idx=n;
+  slides[idx].classList.add('active');
+  dots[idx].classList.add('on');
+  prog.style.width=((idx)/(total-1)*100)+'%';
+  cur.textContent=idx+1;
+  document.getElementById('prev').disabled=idx===0;
+  document.getElementById('next').disabled=idx===total-1;
+  if(slides[idx].querySelector('.metric')) animateCounts(slides[idx]);
+}
+function next(){go(idx+1)} function prev(){go(idx-1)}
+document.getElementById('next').onclick=next;
+document.getElementById('prev').onclick=prev;
+go(0);
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+  else if(e.key==='Home'){go(0);} else if(e.key==='End'){go(total-1);}
+  else if(e.key.toLowerCase()==='f'){toggleFs();}
+});
+
+// swipe
+let sx=0;
+document.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>60){dx<0?next():prev();}},{passive:true});
+
+// fullscreen
+function toggleFs(){if(!document.fullscreenElement){document.documentElement.requestFullscreen?.();}else{document.exitFullscreen?.();}}
+document.getElementById('fs').onclick=toggleFs;
+
+// count up
+function animateCounts(slide){
+  slide.querySelectorAll('[data-count]').forEach(el=>{
+    if(el.dataset.done)return; el.dataset.done=1;
+    const target=parseFloat(el.dataset.count);
+    const dec=parseInt(el.dataset.dec||0);
+    const prefix=el.dataset.prefix?el.dataset.prefix.replace('&lt;','<'):'';
+    let t0=null,dur=1100;
+    function step(ts){
+      if(!t0)t0=ts; const p=Math.min((ts-t0)/dur,1);
+      const e=1-Math.pow(1-p,3);
+      el.textContent=prefix+(target*e).toFixed(dec);
+      if(p<1)requestAnimationFrame(step); else el.textContent=prefix+target.toFixed(dec);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+// cover waveform — live telemetry trace
+const cv=document.getElementById('wave');
+if(cv){
+  const ctx=cv.getContext('2d');
+  let W,H,t=0;
+  function resize(){W=cv.width=cv.offsetWidth*devicePixelRatio;H=cv.height=cv.offsetHeight*devicePixelRatio;}
+  resize(); addEventListener('resize',resize);
+  function lerpColor(){return ctx.createLinearGradient(0,0,W,0);}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const g=lerpColor();g.addColorStop(0,'rgba(29,78,216,0)');g.addColorStop(.5,'rgba(29,78,216,.55)');g.addColorStop(1,'rgba(8,145,178,0)');
+    for(let pass=0;pass<2;pass++){
+      ctx.beginPath();
+      const amp=H*(pass?0.10:0.18), yoff=H*(pass?0.62:0.5), freq=pass?0.018:0.011, sp=pass?2.2:1.6;
+      for(let x=0;x<=W;x+=4){
+        const spike=Math.sin(x*0.045+t*0.06)>0.86?Math.sin(x*0.6)*amp*1.4:0;
+        const y=yoff+Math.sin(x*freq+t*0.04*sp)*amp+Math.sin(x*0.003-t*0.02)*amp*0.5+spike;
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle=g;ctx.lineWidth=(pass?1.5:2.4)*devicePixelRatio;ctx.lineJoin='round';ctx.stroke();
+    }
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
